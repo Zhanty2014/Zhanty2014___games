@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>荒野回响 · v1.0.0</title>
+    <title>荒野回响 · v1.1.5 经验修复</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background: #1a1e2c; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
@@ -18,7 +18,7 @@
         .cheat-btn { background: transparent; border: none; color: #5a6380; font-size: 18px; cursor: pointer; padding: 0 8px; transition: 0.2s; margin-left: 6px; }
         .cheat-btn:hover { color: #f7768e; transform: scale(1.2); }
         .map-container { background: #0f121c; border-radius: 16px; padding: 12px; margin-bottom: 14px; border: 1px solid #2f3650; display: flex; justify-content: center; }
-        .map-grid { display: grid; grid-template-columns: repeat(7, 44px); grid-template-rows: repeat(7, 44px); gap: 2px; user-select: none; }
+        .map-grid { display: grid; gap: 2px; user-select: none; }
         .map-cell { background: #1a1e2c; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: 0.1s; border: 1px solid #2f3650; position: relative; }
         .map-cell.unknown { background: #11141f; color: #3a4055; font-size: 14px; }
         .map-cell.player { background: #7aa2f7; border-color: #7dcfff; box-shadow: 0 0 12px #7aa2f766; transform: scale(0.95); }
@@ -60,9 +60,20 @@
         .save-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #2f3650; }
         .save-list-item span { color: #d4dcec; }
         .save-list-item button { background: #3c445e; border: none; border-radius: 20px; padding: 4px 12px; color: #f0f4ff; cursor: pointer; margin-left: 5px; }
+        .skill-tab { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
+        .skill-tab-btn { flex: 1; background: #2f3650; border: none; border-radius: 10px; padding: 8px; color: #ccc; cursor: pointer; font-size: 13px; }
+        .skill-tab-btn.active { background: #4f5a7a; color: #fff; }
+        .skill-node { background: #1a1e2c; border-radius: 8px; padding: 8px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #2f3650; }
+        .skill-node .desc { font-size: 13px; color: #ccc; }
+        .skill-node button { background: #3c445e; border: none; border-radius: 20px; padding: 4px 12px; color: #fff; cursor: pointer; }
+        .skill-node button:disabled { opacity: 0.4; }
+        .exp-bar { width: 100%; height: 10px; background: #2f3650; border-radius: 5px; margin: 5px 0; }
+        .exp-fill { height: 100%; background: #7dcfff; border-radius: 5px; transition: width 0.3s; }
         #coverMenu h2, #coverNewGame h2, #coverLoadGame h2 { color: #ffffff; }
         #coverMenu .start-btn { color: #ffffff; }
-        @media (max-width: 700px) { .map-grid { grid-template-columns: repeat(7, 32px); grid-template-rows: repeat(7, 32px); } .map-cell { font-size: 16px; } .dir-btn { width: 38px; height: 38px; font-size: 18px; } .action-bar .btn { font-size: 13px; padding: 8px 14px; } .end-message { font-size: 32px; } }
+        .qa-box { text-align: left; color: #d4dcec; max-height: 300px; overflow-y: auto; padding: 10px; }
+        .qa-box p { margin: 8px 0; } .qa-box strong { color: #7dcfff; }
+        @media (max-width: 700px) { .map-grid { grid-template-columns: repeat(7, 32px)!important; grid-template-rows: repeat(7, 32px)!important; } .map-cell { font-size: 16px; } .dir-btn { width: 38px; height: 38px; font-size: 18px; } .action-bar .btn { font-size: 13px; padding: 8px 14px; } .end-message { font-size: 32px; } }
     </style>
 </head>
 <body>
@@ -90,6 +101,7 @@
         <button class="btn primary" id="useBtn">🍽️ 使用</button>
         <button class="btn" id="inventoryBtn">🎒 背包</button>
         <button class="btn" id="achievementsBtn">🏆 成就</button>
+        <button class="btn" id="skillsBtn">🧬 技能</button>
         <button class="btn" id="saveBtn">💾 存档</button>
         <button class="btn" id="quitBtn">🚪 退出</button>
         <button class="btn warning" id="nextDayBtn">🌙 下一天</button>
@@ -102,75 +114,22 @@
             </div>
         </div>
     </div>
-    <div class="help-text">版本 1.0.0 · 水域通行·存档管理·导出导入</div>
+    <div class="help-text">版本 1.1.5 · 经验获取全面修复</div>
 </div>
 
 <div class="panel-overlay" id="panelOverlay"><div class="panel-box" id="panelBox"><h3 id="panelTitle"></h3><div id="panelContent"></div><button class="panel-close" id="panelClose">关闭</button></div></div>
 <div class="cover-overlay active" id="coverOverlay">
-    <div class="cover-box" id="coverMain">
-        <h1>🏕️ 荒野回响</h1>
-        <p>版本 1.0.0 · 正式版</p>
-        <button class="start-btn" id="beginBtn">开始</button>
-        <button class="start-btn" id="changelogBtn">📋 更新日志</button>
-    </div>
-    <div class="cover-box" id="coverMenu" style="display:none;">
-        <h2>选择操作</h2>
-        <button class="start-btn" id="newGameBtn">🌱 新存档</button>
-        <button class="start-btn" id="loadGameBtn">📂 读档</button>
-        <button class="start-btn" id="backBtn">返回</button>
-    </div>
-    <div class="cover-box" id="coverNewGame" style="display:none;">
-        <h2>新建存档</h2>
-        <input type="text" id="saveNameInput" placeholder="存档名称" value="荒野求生" style="padding:8px; border-radius:8px; background:#1a1e2c; color:#fff; border:1px solid #4f5a7a; width:100%; margin-bottom:10px;">
-        <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;">
-            <button class="start-btn" data-days="30">🌱 简单(30天)</button>
-            <button class="start-btn" data-days="60">🌿 普通(60天)</button>
-            <button class="start-btn" data-days="90">🌳 困难(90天)</button>
-            <button class="start-btn" data-days="0">♾️ 无尽</button>
-            <button class="start-btn" id="customBtn">⚙️ 自定义</button>
-        </div>
-        <div class="custom-days" id="customDaysDiv">
-            <input type="number" id="customDaysInput" min="1" value="30" placeholder="天数">
-            <button class="start-btn" id="startCustomBtn">开始自定义</button>
-        </div>
-        <button class="start-btn" id="backNewGameBtn">返回</button>
-    </div>
-    <div class="cover-box" id="coverLoadGame" style="display:none;">
-        <h2>读取存档</h2>
-        <div id="saveListContainer"></div>
-        <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
-            <button class="start-btn" id="exportBtn">📤 导出存档</button>
-            <button class="start-btn" id="importBtn">📥 导入存档</button>
-            <input type="file" id="importFile" accept=".json" style="display:none;">
-        </div>
-        <button class="start-btn" id="backLoadBtn">返回</button>
-    </div>
-    <div class="cover-box" id="coverChangelog" style="display:none;">
-        <h2>📋 更新日志 v1.0.0</h2>
-        <div style="text-align:left; color:#d4dcec; max-height: 300px; overflow-y: auto; padding:10px;">
-            <p>🎉 正式版发布！</p>
-            <ul>
-                <li>新增水域通行判定：无木筏时穿越河流/湖泊额外消耗体力，可能受伤。</li>
-                <li>新增退出游戏按钮：保存并返回主菜单。</li>
-                <li>存档管理增强：单条删除、导入/导出存档文件。</li>
-                <li>外挂开启确认，修复作弊下泉水Bug。</li>
-                <li>平衡性调整：战斗概率降低，每日采集次数随机2~4次。</li>
-                <li>界面优化，文字颜色调整。</li>
-            </ul>
-        </div>
-        <button class="start-btn" id="backChangelogBtn">返回</button>
-    </div>
+    <div class="cover-box" id="coverMain"><h1>🏕️ 荒野回响</h1><p>版本 1.1.5 · 经验修复</p><button class="start-btn" id="beginBtn">开始</button><button class="start-btn" id="changelogBtn">📋 更新日志</button><button class="start-btn" id="qaBtn">❓ Q&A</button></div>
+    <div class="cover-box" id="coverMenu" style="display:none;"><h2>选择操作</h2><button class="start-btn" id="newGameBtn">🌱 新存档</button><button class="start-btn" id="loadGameBtn">📂 读档</button><button class="start-btn" id="backBtn">返回</button></div>
+    <div class="cover-box" id="coverNewGame" style="display:none;"><h2>新建存档</h2><input type="text" id="saveNameInput" placeholder="存档名称" value="荒野求生" style="padding:8px; border-radius:8px; background:#1a1e2c; color:#fff; border:1px solid #4f5a7a; width:100%; margin-bottom:10px;"><div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 16px;"><button class="start-btn" data-days="30">🌱 简单(30天)</button><button class="start-btn" data-days="60">🌿 普通(60天)</button><button class="start-btn" data-days="90">🌳 困难(90天)</button><button class="start-btn" data-days="0">♾️ 无尽</button><button class="start-btn" id="customBtn">⚙️ 自定义</button></div><div class="custom-days" id="customDaysDiv"><input type="number" id="customDaysInput" min="1" value="30" placeholder="天数"><button class="start-btn" id="startCustomBtn">开始自定义</button></div><button class="start-btn" id="backNewGameBtn">返回</button></div>
+    <div class="cover-box" id="coverLoadGame" style="display:none;"><h2>读取存档</h2><div id="saveListContainer"></div><div style="margin-top:12px; display:flex; gap:8px; justify-content:center;"><button class="start-btn" id="exportBtn">📤 导出存档</button><button class="start-btn" id="importBtn">📥 导入存档</button><input type="file" id="importFile" accept=".json" style="display:none;"></div><button class="start-btn" id="backLoadBtn">返回</button></div>
+    <div class="cover-box" id="coverChangelog" style="display:none;"><h2>📋 更新日志 v1.1.5</h2><div style="text-align:left; color:#d4dcec; max-height:300px; overflow-y:auto; padding:10px;"><ul><li>修复经验永远不增长的严重bug（初始经验判断错误导致所有经验获取被拦截）</li><li>移动、采集、制作、战斗、事件等全部正常获得经验</li><li>冶炼铁锭、逃跑失败、寻路者发现、泉水事件均补充经验</li><li>技能满级后经验条停止增长，并显示已满级</li><li>外挂模式自动设置所有领域为9级满经验，技能点额外增加</li><li>修复外挂下技能树面板显示与实际数据不同步的问题</li></ul></div><button class="start-btn" id="backChangelogBtn">返回</button></div>
+    <div class="cover-box" id="coverQA" style="display:none;"><h2>❓ 常见问题</h2><div class="qa-box"><p><strong>Q: 如何获得技能点？</strong><br>A: 进行采集、制作、战斗、探索、生存等行动会获得相应领域经验，每升一级奖励1技能点。外挂模式额外赠送100点并直接升至9级。</p><p><strong>Q: 为什么经验条不动？</strong><br>A: 已修复，现在正常累积。打开技能面板即可看到实时进度。</p><p><strong>Q: 保存失败怎么办？</strong><br>A: 如果你直接用浏览器打开文件，可能因安全策略限制localStorage。请使用本地服务器运行，或使用导出存档功能备份。</p></div><button class="start-btn" id="backQABtn">返回</button></div>
 </div>
 <div class="end-overlay" id="endOverlay"><div class="end-box"><div class="end-message" id="endMessage"></div><button class="restart-btn" id="restartBtn">🔄 重新开始</button></div></div>
 <div class="combat-overlay" id="combatOverlay"><div class="combat-box" id="combatBox"><h3>⚔️ 遭遇野兽</h3><div id="combatContent"></div></div></div>
 <div class="toast-overlay" id="toastOverlay"><div class="toast-box" id="toastMessage"></div></div>
-<div class="confirm-overlay" id="confirmOverlay">
-    <div class="confirm-box">
-        <p style="color:#f0f4ff; font-size:18px;">你确定开启外挂？</p>
-        <button class="confirm-btn" id="confirmYes">确定</button>
-        <button class="confirm-btn" id="confirmNo">取消</button>
-    </div>
-</div>
+<div class="confirm-overlay" id="confirmOverlay"><div class="confirm-box"><p style="color:#f0f4ff; font-size:18px;">你确定开启外挂？</p><button class="confirm-btn" id="confirmYes">确定</button><button class="confirm-btn" id="confirmNo">取消</button></div></div>
 
 <script>
     (function() {
@@ -217,6 +176,56 @@
             '绷带':{needs:{'草药':1,'纤维':1},desc:'恢复2点生命',type:'heal'}
         };
 
+        const SKILL_TREE = {
+            '采集': {
+                nodes: [
+                    { id: 'gather1', name: '基础采集术', desc: '采集经验获取+20%', cost: 1, requires: [], effect: { expBonus: 0.2 } },
+                    { id: 'gather2', name: '双倍概率', desc: '采集时有5%概率获得双倍资源', cost: 1, requires: ['gather1'], effect: { doubleChance: 0.05 } },
+                    { id: 'gather3', name: '矿石嗅探', desc: '挖矿时有10%几率额外获得1个同种矿石', cost: 1, requires: ['gather2'], effect: { bonusOre: 0.1 } },
+                    { id: 'gather4', name: '草药大师', desc: '采集草药时20%概率额外获得1株', cost: 1, requires: ['gather1'], effect: { herbChance: 0.2 } },
+                    { id: 'gather5', name: '伐木工', desc: '伐木消耗体力减半（叠加斧头效果）', cost: 1, requires: ['gather1'], effect: { woodCostHalf: true } },
+                    { id: 'gather6', name: '宝藏猎人', desc: '探索时发现特殊事件概率提升10%', cost: 1, requires: ['gather2'], effect: { eventChance: 0.1 } }
+                ]
+            },
+            '制作': {
+                nodes: [
+                    { id: 'craft1', name: '巧手', desc: '制作消耗材料-10%', cost: 1, requires: [], effect: { materialSave: 0.1 } },
+                    { id: 'craft2', name: '精工品质', desc: '制作工具时有10%几率获得额外50%耐久', cost: 1, requires: ['craft1'], effect: { qualityChance: 0.1 } },
+                    { id: 'craft3', name: '回收利用', desc: '工具损坏返还30%材料（被动）', cost: 1, requires: ['craft1'], effect: { recycle: 0.3 } },
+                    { id: 'craft4', name: '铁匠之心', desc: '冶炼金属时产量+1', cost: 1, requires: ['craft2'], effect: { smeltBonus: 1 } },
+                    { id: 'craft5', name: '蓝图记忆', desc: '制作经验增加，高级解锁隐藏配方', cost: 1, requires: ['craft3'], effect: { blueprint: true } }
+                ]
+            },
+            '战斗': {
+                nodes: [
+                    { id: 'combat1', name: '坚韧', desc: '生命值上限+1', cost: 1, requires: [], effect: { maxHp: 1 } },
+                    { id: 'combat2', name: '反击', desc: '被攻击时有10%概率反击（近战/肉搏生效）', cost: 1, requires: ['combat1'], effect: { counterChance: 0.1 } },
+                    { id: 'combat3', name: '远程专家', desc: '弓箭伤害+1，体力消耗-0.5', cost: 1, requires: [], effect: { bowDmg: 1, bowStamina: 0.5 } },
+                    { id: 'combat4', name: '近战专精', desc: '剑/肉搏伤害+1，剑耐久消耗-20%', cost: 1, requires: [], effect: { meleeDmg: 1, swordDurability: 0.2 } },
+                    { id: 'combat5', name: '嗜血', desc: '击杀敌人后恢复1点生命', cost: 1, requires: ['combat2'], effect: { lifesteal: 1 } }
+                ]
+            },
+            '探索': {
+                nodes: [
+                    { id: 'explore1', name: '快步', desc: '移动消耗体力减少0.2', cost: 1, requires: [], effect: { moveStaminaReduce: 0.2 } },
+                    { id: 'explore2', name: '游泳健将', desc: '无木筏时水域体力消耗-1，受伤概率减半', cost: 1, requires: ['explore1'], effect: { waterPenaltyReduce: 1 } },
+                    { id: 'explore3', name: '制图师', desc: '地图可视范围+1（半径4）', cost: 1, requires: ['explore1'], effect: { viewRadius: 1 } },
+                    { id: 'explore4', name: '夜行者', desc: '恶劣天气移动不额外消耗体力', cost: 1, requires: ['explore2'], effect: { weatherImmunity: true } },
+                    { id: 'explore5', name: '寻路者', desc: '每次移动有5%几率发现附近新地形', cost: 1, requires: ['explore3'], effect: { discoverChance: 0.05 } }
+                ]
+            },
+            '生存': {
+                nodes: [
+                    { id: 'survive1', name: '耐饥', desc: '饱腹消耗速度-20%', cost: 1, requires: [], effect: { hungerReduce: 0.2 } },
+                    { id: 'survive2', name: '节水', desc: '水分消耗速度-20%', cost: 1, requires: [], effect: { thirstReduce: 0.2 } },
+                    { id: 'survive3', name: '高效休息', desc: '休息时生命恢复额外+1', cost: 1, requires: [], effect: { restBonus: 1 } },
+                    { id: 'survive4', name: '温暖之心', desc: '体温下降速度降低30%', cost: 1, requires: [], effect: { tempReduce: 0.3 } },
+                    { id: 'survive5', name: '精神堡垒', desc: '精神下降速度降低30%', cost: 1, requires: [], effect: { sanityReduce: 0.3 } },
+                    { id: 'survive6', name: '幸存者', desc: '生命低于3时，所有属性消耗减半', cost: 1, requires: ['survive1','survive3'], effect: { survivorBonus: true } }
+                ]
+            }
+        };
+
         function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
         function pick(arr){return arr[rand(0,arr.length-1)];}
 
@@ -227,6 +236,7 @@
                 shelterActive:false, trapLocation:null, trapDurability:0,
                 resourcePenalty:false, sameSpotCount:0, lastDayX:CENTER, lastDayY:CENTER,
                 movedToday:false,
+                skills: { unlocked: {}, points: 0, levels: { '采集':0, '制作':0, '战斗':0, '探索':0, '生存':0 }, experience: { '采集':0, '制作':0, '战斗':0, '探索':0, '生存':0 }, activeCooldowns: {} },
                 hasTool(name){return this.tools[name]&&this.tools[name].count>0;},
                 getToolDurability(name){return this.tools[name]?this.tools[name].durability:0;},
                 useToolDurability(name,amount=1){
@@ -255,7 +265,7 @@
 
         class Game {
             constructor(maxDay, saveId){
-                this.maxDay = maxDay || 30;
+                this.maxDay = (maxDay === 0) ? 0 : (maxDay || 30);
                 this.saveId = saveId || Date.now().toString();
                 this.world=new Map();
                 this.player=createPlayer();
@@ -265,6 +275,7 @@
                 this.achievements={};
                 this.inCombat = false;
                 this.maxCollectToday = rand(2,4);
+                this.currentSkillTab = '采集';
                 this.initWorldAndStory();
                 this.renderAll();
             }
@@ -293,18 +304,25 @@
                     el.className='value';
                     if(val<=2)el.classList.add('danger');else if(val<=4)el.classList.add('warning');else if(val>=8)el.classList.add('good');
                 };
-                set('hp',p.hp);set('hunger',p.hunger);set('thirst',p.thirst);set('stamina',p.stamina,true);set('sanity',p.sanity);set('temp',p.temp);
+                let maxHp = 10 + (this.hasSkill('combat1')?1:0);
+                set('hp',Math.min(p.hp, maxHp));
+                set('hunger',p.hunger);set('thirst',p.thirst);set('stamina',p.stamina,true);set('sanity',p.sanity);set('temp',p.temp);
                 document.getElementById('day').textContent=p.day;
                 document.getElementById('coords').textContent=`(${p.x},${p.y})`;
                 document.getElementById('weatherDisplay').textContent=this.weather;
                 const badge=document.getElementById('cheatBadge');if(badge)badge.classList.toggle('active',this.cheatMode);
             }
             renderMap(){
-                const grid=document.getElementById('mapGrid');if(!grid)return;grid.innerHTML='';
+                const grid=document.getElementById('mapGrid');if(!grid)return;
+                const rad = VIEW_RADIUS + (this.hasSkill('explore3')?1:0);
+                const size = 2*rad+1;
+                grid.style.gridTemplateColumns = `repeat(${size}, 44px)`;
+                grid.style.gridTemplateRows = `repeat(${size}, 44px)`;
+                grid.innerHTML='';
                 const px=this.player.x,py=this.player.y;
-                for(let r=0;r<2*VIEW_RADIUS+1;r++)for(let c=0;c<2*VIEW_RADIUS+1;c++){
+                for(let r=0;r<size;r++)for(let c=0;c<size;c++){
                     const cell=document.createElement('div');cell.className='map-cell';
-                    const wx=px+(c-VIEW_RADIUS),wy=py+(r-VIEW_RADIUS);
+                    const wx=px+(c-rad),wy=py+(r-rad);
                     const isPlayer=(wx===px&&wy===py);
                     const zone=this.getZone(wx,wy);
                     if(zone){cell.innerHTML=`<span>${TERRAIN_EMOJI[zone.type]||'?'}</span>`;if(isPlayer)cell.classList.add('player');}
@@ -327,9 +345,30 @@
             checkAchievement(name){
                 if(!this.achievements[name]){this.achievements[name]=true;this.showToast(`🏆 成就解锁：${name}`);this.addStory(`🏆 成就解锁：${name}`,'success');}
             }
+            hasSkill(skillId){ return this.player.skills.unlocked[skillId] || false; }
+            gainExperience(category, amount){
+                if(this.cheatMode) return;
+                const skills = this.player.skills;
+                const exp = skills.experience;
+                if(exp[category] === undefined) exp[category] = 0;
+                let bonus = 1.0;
+                if(category==='采集' && this.hasSkill('gather1')) bonus = 1.2;
+                exp[category] += amount * bonus;
+                let loops = 0;
+                while(exp[category] >= (skills.levels[category]+1)*100 && skills.levels[category] < 10 && loops < 20){
+                    exp[category] -= (skills.levels[category]+1)*100;
+                    skills.levels[category]++;
+                    skills.points++;
+                    this.addStory(`🎓 ${category}技能提升至${skills.levels[category]}级，获得1技能点！`,'success');
+                    loops++;
+                }
+                if(skills.levels[category] >= 10 && exp[category] >= (skills.levels[category]+1)*100) {
+                    exp[category] = (skills.levels[category]+1)*100 - 1;
+                }
+            }
             resetGame(){
                 this.world.clear();this.player=createPlayer();this.storyLog=[];this.gameOver=false;this.won=false;this.cheatMode=false;this.weather='晴天';this.achievements={};this.inCombat=false;
-                this.maxCollectToday = rand(2,4);
+                this.maxCollectToday = rand(2,4); this.currentSkillTab = '采集';
                 this.initWorldAndStory();this.renderAll();
                 document.getElementById('endOverlay').classList.remove('active');
             }
@@ -351,14 +390,21 @@
                     else meta.push(newMeta);
                     localStorage.setItem('wildEchoSave_meta', JSON.stringify(meta));
                     if(!silent) { this.addStory('💾 游戏已保存。','info'); this.renderStory(); }
-                }catch(e){ if(!silent) this.addStory('保存失败。','system'); }
+                }catch(e){ 
+                    if(!silent) {
+                        const msg = '保存失败！可能是浏览器限制了本地存储，请尝试导出存档或使用HTTP服务器打开。';
+                        this.addStory(msg,'system'); 
+                        this.showToast(msg);
+                        this.renderStory();
+                    }
+                }
             }
             loadGame(saveId){
                 const raw=localStorage.getItem(`wildEchoSave_data_${saveId}`);
                 if(!raw)return false;
                 try{
                     const data=JSON.parse(raw);
-                    this.maxDay=data.maxDay||30; this.saveId=saveId;
+                    this.maxDay=data.maxDay!=null?data.maxDay:30; this.saveId=saveId;
                     this.maxCollectToday = data.maxCollectToday || rand(2,4);
                     this.world=new Map(data.world);this.player=data.player;this.storyLog=data.storyLog||[];
                     this.gameOver=data.gameOver;this.won=data.won;this.cheatMode=data.cheatMode;this.weather=data.weather||'晴天';
@@ -367,7 +413,11 @@
                     if(!this.player.dailyFoodStaminaRestored)this.player.dailyFoodStaminaRestored=0;
                     if(!this.player.resourcePenalty)this.player.resourcePenalty=false;
                     if(!this.player.movedToday)this.player.movedToday=false;
-                    this.inCombat = false;
+                    if(!this.player.skills) this.player.skills = { unlocked: {}, points: 0, levels: {'采集':0,'制作':0,'战斗':0,'探索':0,'生存':0}, experience: {'采集':0,'制作':0,'战斗':0,'探索':0,'生存':0}, activeCooldowns: {} };
+                    if(!this.player.skills.activeCooldowns) this.player.skills.activeCooldowns = {};
+                    const exp = this.player.skills.experience;
+                    for(let cat of ['采集','制作','战斗','探索','生存']) if(exp[cat]===undefined) exp[cat]=0;
+                    this.inCombat = false; this.currentSkillTab = '采集';
                     return true;
                 }catch(e){return false;}
             }
@@ -375,14 +425,14 @@
             move(dx,dy){
                 if(this.gameOver || this.inCombat) return;
                 const p=this.player;
-                let requiredStamina = STAMINA_PER_MOVE;
-                // 水域通行判定
+                let requiredStamina = STAMINA_PER_MOVE - (this.hasSkill('explore1')?0.2:0);
                 const targetZone = this.getZone(p.x+dx, p.y+dy) || this.generateZone(p.x+dx, p.y+dy);
                 if(targetZone && (targetZone.type==='河流'||targetZone.type==='湖泊')){
                     if(!p.hasItem('木筏')){
-                        requiredStamina += 2; // 额外体力消耗
-                        this.addStory('没有木筏，艰难涉水，体力消耗增加。','info');
-                        if(!this.cheatMode && rand(1,100)<=30){
+                        let extra = this.hasSkill('explore2')?1:2;
+                        requiredStamina += extra;
+                        this.addStory('没有木筏，艰难涉水。','info');
+                        if(!this.cheatMode && rand(1,100)<=30*(this.hasSkill('explore2')?0.5:1)){
                             p.hp -= rand(1,2);
                             this.addStory('水中暗流导致受伤。','combat');
                         }
@@ -394,11 +444,15 @@
                 if(!this.cheatMode)p.stamina=Math.max(0,p.stamina-requiredStamina);
                 if(p.shelterActive){p.shelterActive=false;this.addStory('离开了庇护所。','info');}
                 p.resourcePenalty=false; p.sameSpotCount=0;
-                p.x=nx;p.y=ny;
-                p.movedToday=true;
+                p.x=nx;p.y=ny; p.movedToday=true;
+                this.gainExperience('探索', 1);
                 let zone=this.getZone(nx,ny);
-                if(!zone){zone=this.generateZone(nx,ny);this.addStory(`踏入未知的 ${TERRAIN_EMOJI[zone.type]} ${zone.type}`,'info');this.triggerZoneEvent(nx,ny);}
+                if(!zone){zone=this.generateZone(nx,ny);this.addStory(`踏入未知的 ${TERRAIN_EMOJI[zone.type]} ${zone.type}`,'info');this.triggerZoneEvent(nx,ny); this.gainExperience('探索', 5);}
                 else{if(!zone.explored)this.triggerZoneEvent(nx,ny);else this.addStory(`回到 ${TERRAIN_EMOJI[zone.type]} ${zone.type}`,'info');}
+                if(this.hasSkill('explore5') && rand(1,100)<=5){
+                    const rx = p.x + rand(-1,1), ry = p.y + rand(-1,1);
+                    if(!this.getZone(rx,ry)){ this.setZone(rx,ry, pick(NATURAL_TYPES), false); this.addStory('寻路者发现了附近的新地形。','info'); this.gainExperience('探索', 3); }
+                }
                 this.renderAll();
                 if(!this.cheatMode&&rand(1,100)<=15)this.triggerCombat();
             }
@@ -406,54 +460,58 @@
                 if(this.gameOver || this.inCombat) return;
                 this.inCombat = true;
                 const enemy=pick(['狼','熊','雪狼']);
-                const dmg=enemy==='狼'?2:(enemy==='熊'?4:3);
+                let dmg=enemy==='狼'?2:(enemy==='熊'?4:3);
                 const loot={肉:enemy==='狼'?2:4,毛皮:enemy==='狼'?1:2};
                 const panel=document.getElementById('combatOverlay'),content=document.getElementById('combatContent');
                 content.innerHTML=`<p>你遇到了 ${enemy}！(攻击${dmg})</p>`;
                 const hasBow=this.player.hasTool('弓箭')&&this.player.getToolDurability('弓箭')>0;
                 const hasSword=this.player.hasTool('剑')&&this.player.getToolDurability('剑')>0;
-                const endCombat = () => {
-                    panel.classList.remove('active');
-                    this.inCombat = false;
-                    this.renderAll();
-                };
+                const endCombat = () => { panel.classList.remove('active'); this.inCombat = false; this.renderAll(); };
                 const btnR=document.createElement('button');btnR.textContent='🏹 远程攻击';btnR.className='btn primary';btnR.disabled=!hasBow;
                 btnR.onclick=()=>{
                     this.player.useToolDurability('弓箭');
                     this.addStory(`弓箭射杀了 ${enemy}，获得 ${loot.肉}肉 ${loot.毛皮}毛皮。`,'combat');
                     this.player.addItem('肉',loot.肉);this.player.addItem('毛皮',loot.毛皮);
-                    this.checkAchievement('首次狩猎');
+                    this.gainExperience('战斗', 10);
+                    if(this.hasSkill('combat5')){ let maxHp=10+(this.hasSkill('combat1')?1:0); this.player.hp=Math.min(maxHp,this.player.hp+1); this.addStory('嗜血恢复1点生命。','info'); }
                     endCombat();
                 };
                 const btnM=document.createElement('button');
                 if(hasSword || this.player.hasArmor()){
-                    const dmgTaken = this.player.hasArmor() ? Math.floor(dmg/2) : dmg;
+                    let dmgTaken = dmg;
+                    if(this.player.hasArmor()) dmgTaken = Math.floor(dmg/2);
                     btnM.textContent = this.player.hasArmor() ? '🛡️ 持剑+铁甲' : '⚔️ 持剑战斗';
                     btnM.className = 'btn primary';
                     btnM.onclick=()=>{
                         if(this.player.hasArmor()) this.player.useToolDurability('铁甲');
-                        if(hasSword) this.player.useToolDurability('剑');
+                        if(hasSword) { if(this.hasSkill('combat4')) this.player.useToolDurability('剑', 0.8); else this.player.useToolDurability('剑'); }
                         this.player.hp -= dmgTaken;
                         this.player.addItem('肉',loot.肉);this.player.addItem('毛皮',loot.毛皮);
                         this.addStory(`击杀 ${enemy}，受伤${dmgTaken}点。`,'combat');
-                        this.checkAchievement('首次狩猎');
+                        this.gainExperience('战斗', 8);
+                        if(this.hasSkill('combat5')){ let maxHp=10+(this.hasSkill('combat1')?1:0); this.player.hp=Math.min(maxHp,this.player.hp+1); }
                         endCombat();
                         if(this.player.hp<=0){this.gameOver=true;this.showEndOverlay();}
                     };
                 }else{
                     btnM.textContent='⚔️ 肉搏'; btnM.className='btn danger';
                     btnM.onclick=()=>{
-                        this.player.hp-=dmg;this.player.addItem('肉',Math.floor(loot.肉/2));this.player.addItem('毛皮',Math.floor(loot.毛皮/2));
+                        let taken = dmg;
+                        if(this.hasSkill('combat4')) taken = Math.max(0, taken-1);
+                        this.player.hp -= taken;
+                        this.player.addItem('肉',Math.floor(loot.肉/2));this.player.addItem('毛皮',Math.floor(loot.毛皮/2));
                         this.addStory(`肉搏杀死 ${enemy}，受伤不轻。`,'combat');
-                        this.checkAchievement('首次狩猎');
+                        this.gainExperience('战斗', 5);
+                        if(this.hasSkill('combat5')){ let maxHp=10+(this.hasSkill('combat1')?1:0); this.player.hp=Math.min(maxHp,this.player.hp+1); }
+                        if(this.hasSkill('combat2') && Math.random()<0.1){ this.player.addItem('肉',1); this.addStory('反击造成额外伤害，获得1肉。','combat'); }
                         endCombat();
                         if(this.player.hp<=0){this.gameOver=true;this.showEndOverlay();}
                     };
                 }
                 const btnF=document.createElement('button');btnF.textContent='🏃 逃跑';btnF.className='btn';
                 btnF.onclick=()=>{
-                    if(rand(1,2)===1){this.addStory('逃脱成功。','info');}
-                    else{this.player.hp-=1;this.addStory('逃跑失败，生命-1。','combat');}
+                    if(rand(1,2)===1){this.addStory('逃脱成功。','info'); this.gainExperience('战斗', 3);}
+                    else{this.player.hp-=1;this.addStory('逃跑失败，生命-1。','combat'); this.gainExperience('战斗', 1);}
                     endCombat();
                 };
                 content.appendChild(btnR);content.appendChild(btnM);content.appendChild(btnF);
@@ -471,55 +529,41 @@
                 let msg='';const weatherMod=this.weather==='雨天'?0.5:1;
                 let penaltyMod=1;
                 if(p.resourcePenalty){penaltyMod=0.5; this.addStory('资源枯竭，采集减半。','system'); p.resourcePenalty=false;}
-                if(res.wood){const hasAxe=p.hasTool('斧头')&&p.getToolDurability('斧头')>0;const amt=Math.floor((hasAxe?res.wood*2:res.wood)*weatherMod*penaltyMod);p.addItem('木材',amt);msg+=`木材+${amt} `;if(hasAxe)p.useToolDurability('斧头');}
-                if(res.stone){const amt=Math.floor(res.stone*weatherMod*penaltyMod);p.addItem('石头',amt);msg+=`石头+${amt} `;}
-                if(res.fiber){const amt=Math.floor(res.fiber*weatherMod*penaltyMod);p.addItem('纤维',amt);msg+=`纤维+${amt} `;}
-                if(res.berry){const amt=Math.floor(res.berry*weatherMod*penaltyMod);p.addItem('野果',amt);msg+=`野果+${amt} `;}
-                if(res.herb){const amt=Math.floor(res.herb*weatherMod*penaltyMod);p.addItem('草药',amt);msg+=`草药+${amt} `;}
-                if(res.coal){const amt=Math.floor(res.coal*weatherMod*penaltyMod);p.addItem('煤炭',amt);msg+=`煤炭+${amt} `;}
-                if(res.ice){const amt=Math.floor(res.ice*weatherMod*penaltyMod);p.addItem('冰雪',amt);msg+=`冰雪+${amt} `;}
-                if(res.sulfur){const amt=Math.floor(res.sulfur*weatherMod*penaltyMod);p.addItem('硫磺',amt);msg+=`硫磺+${amt} `;}
-                if(res.bat){const amt=Math.floor(res.bat*weatherMod*penaltyMod);p.addItem('蝙蝠',amt);msg+=`蝙蝠+${amt} `;}
-                if(res.water){
-                    const base=Math.max(1,Math.floor(res.water/2));
-                    const amt=Math.floor((this.weather==='雨天'?base*2:base)*penaltyMod);
-                    p.addItem('水',amt);msg+=`水+${amt} `;
-                    if(p.hasTool('水袋')&&p.getToolDurability('水袋')>0){const ex=Math.floor(res.water/2*penaltyMod);p.addItem('水',ex);msg+=`(水袋+${ex}) `;p.useToolDurability('水袋');}
-                    else{const d=Math.min(2,10-p.thirst);if(d>0){p.thirst=Math.min(10,p.thirst+d);msg+=`解渴+${d} `;}}
-                }
-                if(res.fish){
-                    if(p.hasTool('鱼竿')&&p.getToolDurability('鱼竿')>0){p.addItem('鱼',Math.floor(res.fish*penaltyMod));msg+=`鱼+${Math.floor(res.fish*penaltyMod)} `;p.useToolDurability('鱼竿');}
-                    else{const c=Math.floor(res.fish/2*penaltyMod);if(c>0){p.addItem('鱼',c);msg+=`鱼+${c} `;}}
-                }
-                if(res.iron){
-                    const hasPickaxe = p.hasTool('镐') && p.getToolDurability('镐') > 0;
-                    if(hasPickaxe || this.cheatMode){
-                        const amt = Math.floor(res.iron * weatherMod * penaltyMod);
-                        p.addItem('铁矿石', amt);
-                        msg += `铁矿石+${amt} `;
-                        if(!this.cheatMode) p.useToolDurability('镐');
-                    } else {
-                        this.addStory('没有镐，无法采集铁矿石。', 'info');
-                    }
-                }
+                let doubleProb = this.hasSkill('gather2')?0.05:0;
+                let collected = false;
+                if(res.wood){let hasAxe=p.hasTool('斧头')&&p.getToolDurability('斧头')>0;let amt=Math.floor((hasAxe?res.wood*2:res.wood)*weatherMod*penaltyMod); if(doubleProb&&Math.random()<doubleProb)amt*=2; p.addItem('木材',amt);msg+=`木材+${amt} `;if(hasAxe)p.useToolDurability('斧头'); collected=true;}
+                if(res.stone){let amt=Math.floor(res.stone*weatherMod*penaltyMod); if(doubleProb&&Math.random()<doubleProb)amt*=2; p.addItem('石头',amt);msg+=`石头+${amt} `; collected=true;}
+                if(res.fiber){let amt=Math.floor(res.fiber*weatherMod*penaltyMod); p.addItem('纤维',amt);msg+=`纤维+${amt} `; collected=true;}
+                if(res.berry){let amt=Math.floor(res.berry*weatherMod*penaltyMod); p.addItem('野果',amt);msg+=`野果+${amt} `; collected=true;}
+                if(res.herb){let amt=Math.floor(res.herb*weatherMod*penaltyMod); if(this.hasSkill('gather4')&&Math.random()<0.2)amt++; p.addItem('草药',amt);msg+=`草药+${amt} `; collected=true;}
+                if(res.coal){let amt=Math.floor(res.coal*weatherMod*penaltyMod); p.addItem('煤炭',amt);msg+=`煤炭+${amt} `; collected=true;}
+                if(res.ice){let amt=Math.floor(res.ice*weatherMod*penaltyMod); p.addItem('冰雪',amt);msg+=`冰雪+${amt} `; collected=true;}
+                if(res.sulfur){let amt=Math.floor(res.sulfur*weatherMod*penaltyMod); p.addItem('硫磺',amt);msg+=`硫磺+${amt} `; collected=true;}
+                if(res.bat){let amt=Math.floor(res.bat*weatherMod*penaltyMod); p.addItem('蝙蝠',amt);msg+=`蝙蝠+${amt} `; collected=true;}
+                if(res.water){const base=Math.max(1,Math.floor(res.water/2));let amt=Math.floor((this.weather==='雨天'?base*2:base)*penaltyMod);p.addItem('水',amt);msg+=`水+${amt} `;if(p.hasTool('水袋')&&p.getToolDurability('水袋')>0){const ex=Math.floor(res.water/2*penaltyMod);p.addItem('水',ex);msg+=`(水袋+${ex}) `;p.useToolDurability('水袋');}else{const d=Math.min(2,10-p.thirst);if(d>0){p.thirst=Math.min(10,p.thirst+d);msg+=`解渴+${d} `;}} collected=true;}
+                if(res.fish){if(p.hasTool('鱼竿')&&p.getToolDurability('鱼竿')>0){p.addItem('鱼',Math.floor(res.fish*penaltyMod));msg+=`鱼+${Math.floor(res.fish*penaltyMod)} `;p.useToolDurability('鱼竿');}else{const c=Math.floor(res.fish/2*penaltyMod);if(c>0){p.addItem('鱼',c);msg+=`鱼+${c} `;}} collected=true;}
+                if(res.iron){const hasPickaxe = p.hasTool('镐') && p.getToolDurability('镐') > 0; if(hasPickaxe||this.cheatMode){let amt=Math.floor(res.iron*weatherMod*penaltyMod); if(this.hasSkill('gather3')&&Math.random()<0.1)amt++; p.addItem('铁矿石',amt);msg+=`铁矿石+${amt} `;if(!this.cheatMode)p.useToolDurability('镐'); collected=true;} else {this.addStory('没有镐，无法采集铁矿石。', 'info');}}
                 if(msg){
                     if(!this.cheatMode){
                         p.stamina=Math.max(0,p.stamina-STAMINA_PER_COLLECT);
                         p.dailyCollection[key]=(p.dailyCollection[key]||0)+1;
-                        const remaining = this.maxCollectToday - p.dailyCollection[key];
-                        msg += `(今日剩余 ${remaining} 次)`;
+                        msg+=`(剩余${this.maxCollectToday-p.dailyCollection[key]}次)`;
                     }
                     this.addStory(`采集：${msg}`,'success');
+                    if(collected) this.gainExperience('采集', 2);
                 } else if(!res.iron) this.addStory('无资源。','info');
                 this.renderAll();
             }
             nextDay(){
                 if(this.gameOver || this.inCombat) return;
                 const p=this.player;
-                p.hunger=Math.max(0,p.hunger-rand(1,2));
-                p.thirst=Math.max(0,p.thirst-rand(1,2));
+                let hungerDec = rand(1,2); if(this.hasSkill('survive1')) hungerDec = Math.ceil(hungerDec*0.8);
+                let thirstDec = rand(1,2); if(this.hasSkill('survive2')) thirstDec = Math.ceil(thirstDec*0.8);
+                if(this.hasSkill('survive6') && p.hp<3){ hungerDec = Math.ceil(hungerDec/2); thirstDec = Math.ceil(thirstDec/2); }
+                p.hunger=Math.max(0,p.hunger-hungerDec);
+                p.thirst=Math.max(0,p.thirst-thirstDec);
                 const weathers=['晴天','晴天','雨天','暴风雨','暴风雨'];this.weather=pick(weathers);
-                if(this.weather==='暴风雨'){
+                if(this.weather==='暴风雨' && !this.hasSkill('explore4')){
                     if(!this.cheatMode){
                         if(p.stamina>=1){p.stamina-=1;this.addStory('暴风雨来袭，消耗体力躲避。','system');}
                         else{p.hp-=2;this.addStory('暴风雨中无处可躲，生命-2！','combat');}
@@ -527,26 +571,20 @@
                 }
                 if(p.shelterActive){p.hunger=Math.min(10,p.hunger+1);p.thirst=Math.min(10,p.thirst+1);this.addStory('庇护所减少了消耗。','info');p.shelterActive=false;}
                 if(!p.movedToday && !this.cheatMode){
-                    const heal = 2;
-                    p.hp = Math.min(10, p.hp + heal);
+                    let heal = 2 + (this.hasSkill('survive3')?1:0);
+                    p.hp = Math.min(10+(this.hasSkill('combat1')?1:0), p.hp + heal);
                     this.addStory(`休息了一整天，生命恢复了 ${heal} 点。`,'info');
                 }
                 p.movedToday = false;
                 if(!this.cheatMode){p.stamina=10.0;p.sanity=10;}
                 let tempChange=0;
                 if(this.weather==='雨天')tempChange-=1;else if(this.weather==='暴风雨')tempChange-=2;
-                if(p.hasItem('篝火') && p.hasItem('煤炭')){
-                    p.useItem('煤炭');
-                    tempChange+=2;
-                    this.addStory('篝火带来温暖（消耗1煤炭）。','info');
-                } else if(p.hasItem('篝火')){
-                    this.addStory('篝火已熄灭，缺乏煤炭。','info');
-                }
+                if(p.hasItem('篝火') && p.hasItem('煤炭')){p.useItem('煤炭');tempChange+=2;this.addStory('篝火带来温暖。','info');}
                 if(p.hasTool('衣物')&&p.getToolDurability('衣物')>0){tempChange+=1;p.useToolDurability('衣物');}
+                if(this.hasSkill('survive4')) tempChange = Math.ceil(tempChange*0.7);
                 p.temp=Math.min(10,Math.max(0,p.temp+tempChange));
                 if(p.temp<=0){p.hp-=1;this.addStory('体温过低，生命-1。','combat');}
-                p.dailyCollection={};p.dailyFoodStaminaRestored=0;
-                this.maxCollectToday = rand(2,4);
+                p.dailyCollection={};p.dailyFoodStaminaRestored=0; this.maxCollectToday = rand(2,4);
                 if(p.trapLocation){
                     if(this.getZone(p.trapLocation.x,p.trapLocation.y)&&p.trapDurability>0&&rand(1,100)<=20){
                         p.addItem('肉',1);this.addStory('陷阱捕获了肉！','success');
@@ -555,11 +593,10 @@
                 }
                 if(p.x===p.lastDayX && p.y===p.lastDayY){p.sameSpotCount++;} else{p.sameSpotCount=1;}
                 p.lastDayX=p.x; p.lastDayY=p.y;
-                if(p.sameSpotCount>=2){p.resourcePenalty=true;this.addStory('长期停留，资源枯竭，明日采集减半。','system');}
+                if(p.sameSpotCount>=2){p.resourcePenalty=true;this.addStory('长期停留，资源枯竭。','system');}
                 p.advanceDay();
                 if(this.maxDay > 0 && p.day > this.maxDay){
-                    this.won=true;this.gameOver=true;
-                    this.addStory(`🏆 成功生存 ${this.maxDay} 天！`,'success');
+                    this.won=true;this.gameOver=true; this.addStory(`🏆 成功生存 ${this.maxDay} 天！`,'success');
                     this.showEndOverlay();this.renderAll();return;
                 }
                 if(!p.isAlive()){this.gameOver=true;this.addStory('💀 你倒下了...','combat');this.showEndOverlay();this.renderAll();return;}
@@ -567,20 +604,17 @@
                 this.saveGame(null, true);
                 this.renderAll();
             }
-            quitToMenu(){
-                this.saveGame(null, false);
-                document.getElementById('coverOverlay').classList.add('active');
-                showCover('menu');
-            }
+            quitToMenu(){ this.saveGame(null, false); document.getElementById('coverOverlay').classList.add('active'); showCover('menu'); }
             showCraftPanel(){
                 if(this.gameOver)return;
                 const panel=document.getElementById('panelOverlay'),title=document.getElementById('panelTitle'),content=document.getElementById('panelContent');
                 title.textContent='🔨 制作';content.innerHTML='';
                 Object.entries(RECIPES).forEach(([name,rec])=>{
+                    let needs = Object.assign({}, rec.needs);
+                    if(this.hasSkill('craft1')){ for(let m in needs) needs[m] = Math.max(1, Math.floor(needs[m]*0.9)); }
+                    const canCraft = Object.entries(needs).every(([m,q])=>this.player.hasItem(m,q));
                     const div=document.createElement('div');div.className='panel-item';
-                    const need=Object.entries(rec.needs).map(([m,q])=>`${m}×${q}`).join(' ');
-                    const canCraft = Object.entries(rec.needs).every(([m,q])=>this.player.hasItem(m,q));
-                    div.innerHTML=`<span class="info">${name} <span class="sub">${need}</span></span><button class="craft-exec" data-name="${name}" ${canCraft?'':'disabled'}>${canCraft?'制作':'缺材料'}</button>`;
+                    div.innerHTML=`<span class="info">${name} <span class="sub">${Object.entries(needs).map(([m,q])=>`${m}×${q}`).join(' ')}</span></span><button class="craft-exec" data-name="${name}" ${canCraft?'':'disabled'}>${canCraft?'制作':'缺材料'}</button>`;
                     content.appendChild(div);
                 });
                 content.querySelectorAll('.craft-exec').forEach(b=>b.onclick=(e)=>{this.executeCraft(e.target.dataset.name);this.closePanel();});
@@ -588,27 +622,29 @@
             }
             executeCraft(name){
                 const rec=RECIPES[name];if(!rec)return;const p=this.player;
-                for(const [m,q] of Object.entries(rec.needs))if(!p.hasItem(m,q)){this.addStory('材料不足。','system');return;}
-                for(const [m,q] of Object.entries(rec.needs))p.useItem(m,q);
-                if(name==='篝火'){p.addItem('篝火',1);this.addStory('制作了篝火。','craft');}
-                else if(name==='木筏'){p.addItem('木筏',1);this.addStory('制作了木筏，可安全渡水。','craft');}
-                else if(name==='庇护所'){p.addItem('庇护所',1);this.addStory('制作了庇护所。','craft');}
-                else if(name==='陷阱'){p.addItem('陷阱',1);this.addStory('制作了陷阱。','craft');}
-                else if(name==='绷带'){p.addItem(name,1);this.addStory('制作了绷带。','craft');}
-                else if(name==='熔炉'){p.addItem('熔炉',1);this.addStory('制作了熔炉。','craft');}
-                else if(name==='铁甲'){p.addTool('铁甲',1);this.addStory('制作了铁甲。','craft');}
-                else if(name==='药水'){p.addItem('药水',1);this.addStory('制作了药水。','craft');}
-                else if(name==='炸药'){p.addItem('炸药',1);this.addStory('制作了炸药。','craft');}
-                else if(rec.type==='tool'){p.addTool(name,1);this.addStory(`制作了 ${name}。`,'craft'); if(name==='剑')this.checkAchievement('首次锻造剑'); if(name==='镐')this.checkAchievement('首次制作镐');}
-                this.checkAchievement('首次制作');
+                let needs = Object.assign({}, rec.needs);
+                if(this.hasSkill('craft1')){ for(let m in needs) needs[m] = Math.max(1, Math.floor(needs[m]*0.9)); }
+                for(const [m,q] of Object.entries(needs)) if(!p.hasItem(m,q)){ this.addStory('材料不足。','system'); return; }
+                for(const [m,q] of Object.entries(needs)) p.useItem(m,q);
+                let bonusDurability = 0;
+                if(this.hasSkill('craft2') && Math.random()<0.1) bonusDurability = Math.floor((TOOL_DURABILITY[name]||5)*0.5);
+                if(rec.type==='tool'||name==='铁甲'){
+                    p.addTool(name,1);
+                    if(bonusDurability>0 && p.tools[name]){ p.tools[name].durability += bonusDurability; this.addStory('精工品质！额外耐久。','craft'); }
+                    if(name==='剑') this.checkAchievement('首次锻造剑');
+                    if(name==='镐') this.checkAchievement('首次制作镐');
+                } else if(name==='绷带'||name==='药水'||name==='炸药'||name==='篝火'||name==='木筏'||name==='庇护所'||name==='陷阱'||name==='熔炉'){
+                    p.addItem(name,1);
+                }
+                this.addStory(`制作了 ${name}。`,'craft');
+                this.gainExperience('制作', 3);
                 this.renderAll();
             }
             showUsePanel(){
                 if(this.gameOver)return;
                 const panel=document.getElementById('panelOverlay'),title=document.getElementById('panelTitle'),content=document.getElementById('panelContent');
                 title.textContent='🍽️ 使用/冶炼/融冰';content.innerHTML='';
-                const p=this.player;
-                const itemsToShow = [];
+                const p=this.player; const itemsToShow = [];
                 const standardItems = ['野果','鱼','肉','鸟蛋','水','蝙蝠','冰雪','熟肉','熟鱼','绷带','药水','炸药','庇护所','陷阱'];
                 standardItems.forEach(item => { if(p.hasItem(item)) itemsToShow.push({type:'item', name:item}); });
                 if(p.hasItem('篝火')) {
@@ -616,331 +652,200 @@
                     if(p.hasItem('鱼') && p.hasItem('煤炭')) itemsToShow.push({type:'cook', name:'烹饪熟鱼', needs:['鱼','煤炭']});
                     if(p.hasItem('蝙蝠') && p.hasItem('煤炭')) itemsToShow.push({type:'cook', name:'烹饪熟蝙蝠', needs:['蝙蝠','煤炭']});
                 }
-                if(p.hasItem('熔炉') && p.hasItem('铁矿石') && p.hasItem('煤炭')) {
-                    itemsToShow.push({type:'smelt', name:'冶炼铁锭', needs:['铁矿石','煤炭']});
-                }
-                if(p.hasItem('冰雪') && p.hasItem('篝火') && p.hasItem('煤炭')) {
-                    itemsToShow.push({type:'melt', name:'融冰成水', needs:['冰雪','煤炭']});
-                }
-                if(itemsToShow.length===0){content.innerHTML='<div>无可用物品或生产条件</div>';}
-                else {
-                    itemsToShow.forEach(entry => {
-                        const div=document.createElement('div');div.className='panel-item';
-                        if(entry.type==='item'){
-                            div.innerHTML=`<span>${entry.name} ×${p.inventory[entry.name]}</span><button class="use-exec" data-action="use" data-item="${entry.name}">使用</button>`;
-                        } else if(entry.type==='cook'){
-                            div.innerHTML=`<span>${entry.name} (消耗${entry.needs.join('+')})</span><button class="use-exec" data-action="cook" data-recipe="${entry.name}">烹饪</button>`;
-                        } else if(entry.type==='smelt'){
-                            div.innerHTML=`<span>${entry.name} (消耗${entry.needs.join('+')})</span><button class="use-exec" data-action="smelt">冶炼</button>`;
-                        } else if(entry.type==='melt'){
-                            div.innerHTML=`<span>${entry.name} (消耗${entry.needs.join('+')})</span><button class="use-exec" data-action="melt">融冰</button>`;
-                        }
-                        content.appendChild(div);
-                    });
-                }
-                content.querySelectorAll('.use-exec').forEach(b=>{
-                    b.addEventListener('click', (e)=>{
-                        const action = e.target.dataset.action;
-                        if(action==='use') this.executeUse(e.target.dataset.item);
-                        else if(action==='cook') this.executeCook(e.target.dataset.recipe);
-                        else if(action==='smelt') this.executeSmelt();
-                        else if(action==='melt') this.executeMelt();
-                        this.closePanel();
-                    });
+                if(p.hasItem('熔炉') && p.hasItem('铁矿石') && p.hasItem('煤炭')) itemsToShow.push({type:'smelt', name:'冶炼铁锭'});
+                if(p.hasItem('冰雪') && p.hasItem('篝火') && p.hasItem('煤炭')) itemsToShow.push({type:'melt', name:'融冰成水'});
+                itemsToShow.forEach(entry => {
+                    const div=document.createElement('div');div.className='panel-item';
+                    if(entry.type==='item') div.innerHTML=`<span>${entry.name} ×${p.inventory[entry.name]}</span><button class="use-exec" data-action="use" data-item="${entry.name}">使用</button>`;
+                    else div.innerHTML=`<span>${entry.name}</span><button class="use-exec" data-action="${entry.type}">${entry.type==='cook'?'烹饪':(entry.type==='smelt'?'冶炼':'融冰')}</button>`;
+                    content.appendChild(div);
                 });
+                content.querySelectorAll('.use-exec').forEach(b=>b.addEventListener('click', (e)=>{
+                    const action = e.target.dataset.action;
+                    if(action==='use') this.executeUse(e.target.dataset.item);
+                    else if(action==='cook') this.executeCook('烹饪熟肉');
+                    else if(action==='smelt') this.executeSmelt();
+                    else if(action==='melt') this.executeMelt();
+                    this.closePanel();
+                }));
                 panel.classList.add('active');
             }
-            executeCook(recipeName) {
-                const p=this.player;
-                if(recipeName==='烹饪熟肉'){
-                    if(!p.hasItem('肉') || !p.hasItem('煤炭') || !p.hasItem('篝火')) { this.addStory('缺少材料或篝火。','system'); return; }
-                    p.useItem('肉'); p.useItem('煤炭'); p.addItem('熟肉',1);
-                } else if(recipeName==='烹饪熟鱼'){
-                    if(!p.hasItem('鱼') || !p.hasItem('煤炭') || !p.hasItem('篝火')) { this.addStory('缺少材料或篝火。','system'); return; }
-                    p.useItem('鱼'); p.useItem('煤炭'); p.addItem('熟鱼',1);
-                } else if(recipeName==='烹饪熟蝙蝠'){
-                    if(!p.hasItem('蝙蝠') || !p.hasItem('煤炭') || !p.hasItem('篝火')) { this.addStory('缺少材料或篝火。','system'); return; }
-                    p.useItem('蝙蝠'); p.useItem('煤炭'); p.addItem('熟肉',1);
-                }
-                this.addStory('烹饪完成。','craft'); this.renderAll();
-            }
-            executeSmelt() {
-                const p=this.player;
-                if(!p.hasItem('熔炉') || !p.hasItem('铁矿石') || !p.hasItem('煤炭')) { this.addStory('需要熔炉、铁矿石和煤炭。','system'); return; }
-                p.useItem('铁矿石', 1); p.useItem('煤炭', 1); p.addItem('铁锭', 1);
-                this.addStory('冶炼了一块铁锭。','craft'); this.renderAll();
-            }
-            executeMelt() {
-                const p=this.player;
-                if(!p.hasItem('冰雪') || !p.hasItem('煤炭') || !p.hasItem('篝火')) { this.addStory('需要冰雪、煤炭和篝火。','system'); return; }
-                p.useItem('冰雪', 1); p.useItem('煤炭', 1); p.addItem('水', 2);
-                this.addStory('融冰获得2份水。','craft'); this.renderAll();
-            }
+            executeCook(r){ const p=this.player; if(!p.hasItem('篝火')) return; if(r==='烹饪熟肉'&&p.hasItem('肉')&&p.hasItem('煤炭')){p.useItem('肉');p.useItem('煤炭');p.addItem('熟肉',1);} else if(r==='烹饪熟鱼'&&p.hasItem('鱼')&&p.hasItem('煤炭')){p.useItem('鱼');p.useItem('煤炭');p.addItem('熟鱼',1);} else if(r==='烹饪熟蝙蝠'&&p.hasItem('蝙蝠')&&p.hasItem('煤炭')){p.useItem('蝙蝠');p.useItem('煤炭');p.addItem('熟肉',1);} this.addStory('烹饪完成。','craft'); this.renderAll(); }
+            executeSmelt(){ const p=this.player; if(!p.hasItem('熔炉')||!p.hasItem('铁矿石')||!p.hasItem('煤炭')) return; p.useItem('铁矿石');p.useItem('煤炭'); let amt=1+(this.hasSkill('craft4')?1:0); p.addItem('铁锭',amt); this.addStory(`冶炼了${amt}块铁锭。`,'craft'); this.gainExperience('制作', 2); this.renderAll(); }
+            executeMelt(){ const p=this.player; if(!p.hasItem('冰雪')||!p.hasItem('煤炭')||!p.hasItem('篝火')) return; p.useItem('冰雪');p.useItem('煤炭');p.addItem('水',2); this.addStory('融冰获得2份水。','craft'); this.renderAll(); }
             executeUse(item){
-                const p=this.player;
-                if(!p.hasItem(item))return;
-                if(item==='庇护所'){
-                    if(p.shelterActive){this.addStory('已有庇护所。','info');return;}
-                    p.useItem('庇护所');p.shelterActive=true;this.addStory('搭建了庇护所。','success');
-                }else if(item==='陷阱'){
-                    if(p.trapLocation){this.addStory('已有陷阱。','info');return;}
-                    p.useItem('陷阱');p.trapLocation={x:p.x,y:p.y};p.trapDurability=3;
-                    this.addStory('放置了陷阱。','success');
-                }else if(item==='绷带'){
-                    p.hp = Math.min(10, p.hp + 2);
-                    p.useItem('绷带');
-                    this.addStory('使用绷带，生命+2。','success');
-                }else if(item==='药水'){
-                    p.hp = Math.min(10, p.hp + 2);
-                    p.sanity = Math.min(10, p.sanity + 2);
-                    p.useItem('药水');
-                    this.addStory('使用药水，生命+2，精神+2。','success');
-                }else if(item==='炸药'){
-                    p.useItem('炸药');
-                    this.addStory('投掷炸药，造成范围伤害！','combat');
-                }else if(item==='冰雪'){
-                    p.useItem('冰雪');
-                    p.thirst = Math.min(10, p.thirst + 1);
-                    this.addStory('直接吃下冰雪，水分+1。','info');
-                }else{
-                    let eff='';if(item==='水'){p.thirst=Math.min(10,p.thirst+3);eff='水分+3';}
-                    else if(item==='熟肉'||item==='熟鱼'){p.hunger=Math.min(10,p.hunger+3);eff='饱腹+3'; p.hp=Math.min(10,p.hp+1); eff+='，生命+1';}
-                    else if(item==='蝙蝠'){p.hunger=Math.min(10,p.hunger+2);eff='饱腹+2';}
-                    else{p.hunger=Math.min(10,p.hunger+2);eff='饱腹+2';}
-                    p.sanity=Math.min(10,p.sanity+1);eff+='，精神+1';
+                const p=this.player; if(!p.hasItem(item))return;
+                if(item==='庇护所'){ if(p.shelterActive)return; p.useItem('庇护所'); p.shelterActive=true; this.addStory('搭建了庇护所。','success'); }
+                else if(item==='陷阱'){ if(p.trapLocation)return; p.useItem('陷阱'); p.trapLocation={x:p.x,y:p.y}; p.trapDurability=3; this.addStory('放置了陷阱。','success'); }
+                else if(item==='绷带'){ p.hp = Math.min(10+(this.hasSkill('combat1')?1:0), p.hp+2); p.useItem('绷带'); }
+                else if(item==='药水'){ p.hp = Math.min(10+(this.hasSkill('combat1')?1:0), p.hp+2); p.sanity = Math.min(10, p.sanity+2); p.useItem('药水'); }
+                else if(item==='炸药'){ p.useItem('炸药'); this.addStory('投掷炸药！','combat'); }
+                else if(item==='冰雪'){ p.useItem('冰雪'); p.thirst = Math.min(10, p.thirst+1); }
+                else{
+                    let eff=''; if(item==='水'){ p.thirst=Math.min(10,p.thirst+3); eff='水分+3'; }
+                    else if(item==='熟肉'||item==='熟鱼'){ p.hunger=Math.min(10,p.hunger+3); eff='饱腹+3'; p.hp=Math.min(10+(this.hasSkill('combat1')?1:0),p.hp+1); eff+='，生命+1'; }
+                    else if(item==='蝙蝠'){ p.hunger=Math.min(10,p.hunger+2); eff='饱腹+2'; }
+                    else{ p.hunger=Math.min(10,p.hunger+2); eff='饱腹+2'; }
+                    p.sanity=Math.min(10,p.sanity+1); eff+='，精神+1';
                     let stam=FOOD_STAMINA[item]||0;
-                    if(!this.cheatMode&&stam>0){
-                        const rem=MAX_FOOD_STAMINA_PER_DAY-p.dailyFoodStaminaRestored;
-                        if(rem<=0){stam=0;this.addStory('今日食物补体已达上限。','system');}
-                        else{if(stam>rem)stam=rem;}
-                        if(stam>0){p.stamina=Math.min(10,p.stamina+stam);p.dailyFoodStaminaRestored+=stam;eff+=`，体力+${stam.toFixed(1)}`;}
-                    }
-                    p.useItem(item);this.addStory(`使用 ${item}，${eff}`,'success');
+                    if(!this.cheatMode&&stam>0){ const rem=MAX_FOOD_STAMINA_PER_DAY-p.dailyFoodStaminaRestored; if(rem<=0)stam=0; else{if(stam>rem)stam=rem;} if(stam>0){p.stamina=Math.min(10,p.stamina+stam);p.dailyFoodStaminaRestored+=stam;eff+=`，体力+${stam.toFixed(1)}`;} }
+                    p.useItem(item); this.addStory(`使用 ${item}，${eff}`,'success');
                 }
                 this.renderAll();
             }
             showInventory(){
                 if(this.gameOver)return;
-                const p=this.player;
-                const panel=document.getElementById('panelOverlay'),title=document.getElementById('panelTitle'),content=document.getElementById('panelContent');
+                const p=this.player; const panel=document.getElementById('panelOverlay'),title=document.getElementById('panelTitle'),content=document.getElementById('panelContent');
                 title.textContent='🎒 背包';content.innerHTML='';
-                const items=Object.keys(p.inventory);
-                const tools=Object.keys(p.tools).filter(t=>p.tools[t].count>0);
-                if(items.length===0 && tools.length===0){content.innerHTML='<div class="panel-item"><span>背包空空如也。</span></div>';}
-                else {
-                    if(items.length>0){
-                        const div=document.createElement('div');div.className='panel-item';
-                        div.innerHTML=`<span>📦 物品</span><span>${items.map(k=>`${k}×${p.inventory[k]}`).join('、')}</span>`;
-                        content.appendChild(div);
-                    }
-                    if(tools.length>0){
-                        const div=document.createElement('div');div.className='panel-item';
-                        div.innerHTML=`<span>🔧 工具</span><span>${tools.map(t=>`${t}(耐${p.tools[t].durability})`).join('、')}</span>`;
-                        content.appendChild(div);
-                    }
-                }
+                const items=Object.keys(p.inventory); const tools=Object.keys(p.tools).filter(t=>p.tools[t].count>0);
+                if(items.length||tools.length){
+                    if(items.length){ const d=document.createElement('div');d.className='panel-item';d.innerHTML=`<span>📦 物品</span><span>${items.map(k=>`${k}×${p.inventory[k]}`).join('、')}</span>`;content.appendChild(d);}
+                    if(tools.length){ const d=document.createElement('div');d.className='panel-item';d.innerHTML=`<span>🔧 工具</span><span>${tools.map(t=>`${t}(耐${p.tools[t].durability})`).join('、')}</span>`;content.appendChild(d);}
+                } else content.innerHTML='<div class="panel-item">背包空空</div>';
                 panel.classList.add('active');
             }
             showAchievements(){
                 const panel=document.getElementById('panelOverlay'),title=document.getElementById('panelTitle'),content=document.getElementById('panelContent');
                 title.textContent='🏆 成就列表';content.innerHTML='';
                 const achieved = Object.keys(this.achievements);
-                if(achieved.length===0){content.innerHTML='<div class="panel-item"><span>尚未解锁任何成就。</span></div>';}
-                else { achieved.forEach(a=>{ const div=document.createElement('div');div.className='panel-item';div.innerHTML=`<span>🏆 ${a}</span>`;content.appendChild(div);}); }
+                if(achieved.length) achieved.forEach(a=>{ const d=document.createElement('div');d.className='panel-item';d.innerHTML=`<span>🏆 ${a}</span>`;content.appendChild(d);});
+                else content.innerHTML='<div class="panel-item">暂无成就</div>';
+                panel.classList.add('active');
+            }
+            showSkills(){
+                const panel=document.getElementById('panelOverlay'),title=document.getElementById('panelTitle'),content=document.getElementById('panelContent');
+                title.textContent='🧬 技能树';content.innerHTML='';
+                const skills = this.player.skills;
+                const tabDiv = document.createElement('div'); tabDiv.className = 'skill-tab';
+                ['采集','制作','战斗','探索','生存'].forEach(cat=>{
+                    const btn = document.createElement('button'); btn.className = `skill-tab-btn ${cat===this.currentSkillTab?'active':''}`;
+                    btn.textContent = `${cat} Lv${skills.levels[cat]}`;
+                    btn.addEventListener('click', ()=>{ this.currentSkillTab = cat; this.showSkills(); });
+                    tabDiv.appendChild(btn);
+                });
+                content.appendChild(tabDiv);
+                const currentLevel = skills.levels[this.currentSkillTab];
+                let maxExp = (currentLevel+1)*100;
+                let currentExp = skills.experience[this.currentSkillTab] || 0;
+                if(currentLevel >= 10) {
+                    maxExp = currentExp;
+                    currentExp = maxExp;
+                }
+                const progress = Math.min(100, (currentExp / maxExp) * 100) || 0;
+                const infoDiv = document.createElement('div');
+                const expText = currentLevel >= 10 ? '已满级' : `${currentExp}/${maxExp}`;
+                infoDiv.innerHTML = `<div style="color:#f0f4ff; margin:5px 0;">技能点: ${skills.points} | 经验: ${expText}</div>
+                <div class="exp-bar"><div class="exp-fill" style="width:${progress}%"></div></div>`;
+                content.appendChild(infoDiv);
+                const tree = SKILL_TREE[this.currentSkillTab];
+                if(tree){
+                    tree.nodes.forEach(node=>{
+                        const div = document.createElement('div'); div.className = 'skill-node';
+                        const learned = skills.unlocked[node.id];
+                        const canLearn = !learned && skills.points >= node.cost && node.requires.every(req=>skills.unlocked[req]);
+                        div.innerHTML = `<span class="desc">${node.name} - ${node.desc}</span>`;
+                        const btn = document.createElement('button');
+                        btn.textContent = learned ? '已学' : (canLearn ? '学习' : '锁定');
+                        btn.disabled = !canLearn || learned;
+                        if(canLearn && !learned){
+                            btn.addEventListener('click', ()=>{
+                                skills.unlocked[node.id] = true;
+                                skills.points -= node.cost;
+                                this.showSkills(); this.renderAll();
+                            });
+                        }
+                        div.appendChild(btn); content.appendChild(div);
+                    });
+                }
                 panel.classList.add('active');
             }
             triggerZoneEvent(x,y){
                 const zone=this.getZone(x,y);if(!zone||zone.explored)return;
                 zone.explored=true;
-                if(rand(1,100)<=25){
-                    const evt=pick([
-                        {text:'发现野果，+3野果',eff:p=>p.addItem('野果',3)},
-                        {text:'发现泉眼，水分+3',eff:p=>{ if(this.cheatMode) return; p.thirst=Math.min(10,p.thirst+3);}}
-                    ]);
-                    evt.eff(this.player);
-                    this.addStory(`[${zone.type}] ${evt.text}`,'event');
-                }
-                else this.addStory(`探索了 ${TERRAIN_EMOJI[zone.type]} ${zone.type}`,'info');
+                let chance = 25 + (this.hasSkill('gather6')?10:0);
+                if(rand(1,100)<=chance){
+                    const evt=pick([{text:'发现野果，+3野果',eff:p=>p.addItem('野果',3)},{text:'发现泉眼，水分+3',eff:p=>{ if(this.cheatMode) return; p.thirst=Math.min(10,p.thirst+3);}}]);
+                    evt.eff(this.player); this.addStory(`[${zone.type}] ${evt.text}`,'event');
+                    this.gainExperience('探索', 2);
+                } else this.addStory(`探索了 ${TERRAIN_EMOJI[zone.type]} ${zone.type}`,'info');
             }
-            enableCheat(){
-                if(this.cheatMode) return;
-                document.getElementById('confirmOverlay').classList.add('active');
-            }
+            enableCheat(){ if(!this.cheatMode) document.getElementById('confirmOverlay').classList.add('active'); }
             confirmCheat(){
                 document.getElementById('confirmOverlay').classList.remove('active');
-                this.cheatMode=true;
-                const p=this.player;
+                this.cheatMode=true; const p=this.player;
                 p.hp=p.hunger=p.thirst=p.stamina=p.sanity=p.temp=999;
                 p.addItem('木材',999);p.addItem('石头',999);p.addItem('纤维',999);p.addItem('野果',999);p.addItem('水',999);p.addItem('鱼',999);p.addItem('肉',999);p.addItem('毛皮',999);p.addItem('铁矿石',999);p.addItem('煤炭',999);p.addItem('草药',999);p.addItem('铁锭',999);p.addItem('冰雪',999);p.addItem('硫磺',999);p.addItem('蝙蝠',999);
                 for(const t of ['斧头','鱼竿','弓箭','剑','水袋','衣物','镐','铁甲'])p.addTool(t,1);
-                p.addItem('篝火',1);p.addItem('木筏',1);p.addItem('熔炉',1);this.addStory('⚡ 外挂激活！','system');this.renderAll();
+                p.addItem('篝火',1);p.addItem('木筏',1);p.addItem('熔炉',1);
+                const skills = p.skills;
+                skills.points += 100;
+                for(let cat in SKILL_TREE){
+                    SKILL_TREE[cat].nodes.forEach(node => {
+                        if(!skills.unlocked[node.id]) skills.unlocked[node.id] = true;
+                    });
+                }
+                for(let cat of ['采集','制作','战斗','探索','生存']){
+                    skills.levels[cat] = 9;
+                    skills.experience[cat] = 0;
+                }
+                this.addStory('⚡ 外挂激活！所有领域升至9级，已获得100技能点。','system');this.renderAll();
             }
             closePanel(){document.getElementById('panelOverlay').classList.remove('active');}
         }
 
         let game = null;
-        const coverMain = document.getElementById('coverMain');
-        const coverMenu = document.getElementById('coverMenu');
-        const coverNewGame = document.getElementById('coverNewGame');
-        const coverLoadGame = document.getElementById('coverLoadGame');
-        const coverChangelog = document.getElementById('coverChangelog');
-        const coverOverlay = document.getElementById('coverOverlay');
-
-        function showCover(section) {
-            coverMain.style.display = 'none';
-            coverMenu.style.display = 'none';
-            coverNewGame.style.display = 'none';
-            coverLoadGame.style.display = 'none';
-            coverChangelog.style.display = 'none';
-            if(section === 'main') coverMain.style.display = 'block';
-            else if(section === 'menu') coverMenu.style.display = 'block';
-            else if(section === 'new') coverNewGame.style.display = 'block';
-            else if(section === 'load') coverLoadGame.style.display = 'block';
-            else if(section === 'changelog') coverChangelog.style.display = 'block';
+        const coverMain = document.getElementById('coverMain'), coverMenu = document.getElementById('coverMenu'), coverNewGame = document.getElementById('coverNewGame'), coverLoadGame = document.getElementById('coverLoadGame'), coverChangelog = document.getElementById('coverChangelog'), coverQA = document.getElementById('coverQA'), coverOverlay = document.getElementById('coverOverlay');
+        function showCover(s) { 
+            coverMain.style.display='none'; coverMenu.style.display='none'; coverNewGame.style.display='none'; coverLoadGame.style.display='none'; coverChangelog.style.display='none'; coverQA.style.display='none';
+            if(s==='main')coverMain.style.display='block'; else if(s==='menu')coverMenu.style.display='block'; else if(s==='new')coverNewGame.style.display='block'; else if(s==='load')coverLoadGame.style.display='block'; else if(s==='changelog')coverChangelog.style.display='block'; else if(s==='qa')coverQA.style.display='block';
+        }
+        function startNewGame(d){ const name=document.getElementById('saveNameInput').value.trim()||'荒野求生'; const id=Date.now().toString(); game=new Game(d,id); game.saveGame(name); coverOverlay.classList.remove('active'); game.renderAll(); }
+        function loadSave(id){ if(!game)game=new Game(30,id); else game.saveId=id; if(game.loadGame(id)){coverOverlay.classList.remove('active');game.renderAll();}else alert('存档损坏'); }
+        function deleteSave(id){ localStorage.removeItem(`wildEchoSave_data_${id}`); const m=JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]').filter(i=>i.id!==id); localStorage.setItem('wildEchoSave_meta',JSON.stringify(m)); renderSaveList(); }
+        function exportSave(id){ const raw=localStorage.getItem(`wildEchoSave_data_${id}`); if(!raw)return; const b=new Blob([raw],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`荒野回响_${id}.json`; a.click(); }
+        function importSave(f){ const r=new FileReader(); r.onload=e=>{ try{ const data=JSON.parse(e.target.result); const id=Date.now().toString(); localStorage.setItem(`wildEchoSave_data_${id}`,JSON.stringify(data)); const m=JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]'); m.push({id,name:'导入',date:new Date().toLocaleString()}); localStorage.setItem('wildEchoSave_meta',JSON.stringify(m)); renderSaveList(); alert('导入成功'); }catch(err){alert('失败');} }; r.readAsText(f); }
+        function renderSaveList(){
+            const c=document.getElementById('saveListContainer'); const m=JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]'); c.innerHTML='';
+            if(!m.length){c.innerHTML='<p>暂无存档</p>';return;}
+            m.forEach(i=>{ const d=document.createElement('div');d.className='save-list-item';d.innerHTML=`<span>${i.name} (${i.date})</span><button data-id="${i.id}" class="load-btn">读</button><button data-id="${i.id}" class="del-btn">删</button><button data-id="${i.id}" class="exp-btn">导出</button>`;c.appendChild(d);});
+            c.querySelectorAll('.load-btn').forEach(b=>b.addEventListener('click',e=>loadSave(e.target.dataset.id)));
+            c.querySelectorAll('.del-btn').forEach(b=>b.addEventListener('click',e=>deleteSave(e.target.dataset.id)));
+            c.querySelectorAll('.exp-btn').forEach(b=>b.addEventListener('click',e=>exportSave(e.target.dataset.id)));
         }
 
-        function startNewGame(days) {
-            const nameInput = document.getElementById('saveNameInput');
-            const saveName = nameInput.value.trim() || '荒野求生';
-            const saveId = Date.now().toString();
-            game = new Game(days, saveId);
-            game.saveGame(saveName);
-            coverOverlay.classList.remove('active');
-            game.renderAll();
-        }
-
-        function loadSave(id) {
-            if(!game) game = new Game(30, id);
-            else game.saveId = id;
-            if(game.loadGame(id)) {
-                coverOverlay.classList.remove('active');
-                game.renderAll();
-            } else alert('存档损坏。');
-        }
-
-        function deleteSave(id) {
-            localStorage.removeItem(`wildEchoSave_data_${id}`);
-            const meta = JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]').filter(m=>m.id!==id);
-            localStorage.setItem('wildEchoSave_meta', JSON.stringify(meta));
-            renderSaveList();
-        }
-
-        function exportSave(id) {
-            const raw = localStorage.getItem(`wildEchoSave_data_${id}`);
-            if(!raw) return alert('存档数据不存在');
-            const blob = new Blob([raw], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `荒野回响_存档_${id}.json`;
-            a.click();
-        }
-
-        function importSave(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    const id = Date.now().toString();
-                    localStorage.setItem(`wildEchoSave_data_${id}`, JSON.stringify(data));
-                    const meta = JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]');
-                    meta.push({ id: id, name: data.player?.inventory ? '导入存档' : '未知', date: new Date().toLocaleString() });
-                    localStorage.setItem('wildEchoSave_meta', JSON.stringify(meta));
-                    renderSaveList();
-                    alert('存档导入成功！');
-                } catch (err) { alert('导入失败，文件格式错误。'); }
-            };
-            reader.readAsText(file);
-        }
-
-        function renderSaveList() {
-            const container = document.getElementById('saveListContainer');
-            const meta = JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]');
-            container.innerHTML = '';
-            if(meta.length === 0) {
-                container.innerHTML = '<p style="color:#8892b0;">暂无存档</p>';
-                return;
-            }
-            meta.forEach(m => {
-                const div = document.createElement('div');
-                div.className = 'save-list-item';
-                div.innerHTML = `<span>${m.name} (${m.date})</span>
-                    <button data-id="${m.id}" class="load-btn">读取</button>
-                    <button data-id="${m.id}" class="delete-btn">删除</button>
-                    <button data-id="${m.id}" class="export-btn">导出</button>`;
-                container.appendChild(div);
-            });
-            container.querySelectorAll('.load-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => loadSave(e.target.dataset.id));
-            });
-            container.querySelectorAll('.delete-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => deleteSave(e.target.dataset.id));
-            });
-            container.querySelectorAll('.export-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => exportSave(e.target.dataset.id));
-            });
-        }
-
-        document.getElementById('beginBtn').addEventListener('click', () => showCover('menu'));
-        document.getElementById('changelogBtn').addEventListener('click', () => showCover('changelog'));
-        document.getElementById('backChangelogBtn').addEventListener('click', () => showCover('main'));
-        document.getElementById('newGameBtn').addEventListener('click', () => showCover('new'));
-        document.getElementById('loadGameBtn').addEventListener('click', () => { renderSaveList(); showCover('load'); });
-        document.getElementById('backBtn').addEventListener('click', () => showCover('main'));
-        document.getElementById('backNewGameBtn').addEventListener('click', () => showCover('menu'));
-        document.getElementById('backLoadBtn').addEventListener('click', () => showCover('menu'));
-        document.getElementById('exportBtn').addEventListener('click', () => {
-            const meta = JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]');
-            if(meta.length===0) return alert('没有存档可导出');
-            const allData = {};
-            meta.forEach(m => { allData[m.id] = localStorage.getItem(`wildEchoSave_data_${m.id}`); });
-            const blob = new Blob([JSON.stringify(allData)], {type: 'application/json'});
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `荒野回响_全存档_${new Date().toISOString().slice(0,10)}.json`;
-            a.click();
-        });
-        document.getElementById('importBtn').addEventListener('click', () => {
-            document.getElementById('importFile').click();
-        });
-        document.getElementById('importFile').addEventListener('change', (e) => {
-            if(e.target.files.length>0) importSave(e.target.files[0]);
-        });
-
-        document.getElementById('customBtn').addEventListener('click', () => {
-            document.getElementById('customDaysDiv').style.display = 'block';
-        });
-        document.getElementById('startCustomBtn').addEventListener('click', () => {
-            const val = parseInt(document.getElementById('customDaysInput').value);
-            if(val > 0) startNewGame(val);
-            else alert('请输入有效天数');
-        });
-        document.querySelectorAll('#coverNewGame .start-btn[data-days]').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const days = parseInt(e.target.dataset.days);
-                startNewGame(days);
-            });
-        });
-
-        document.getElementById('restartBtn').addEventListener('click', () => { if(game) game.resetGame(); });
-        document.getElementById('saveBtn').addEventListener('click', () => { if(game) game.saveGame(null, false); });
-        document.getElementById('quitBtn').addEventListener('click', () => { if(game) game.quitToMenu(); });
-        document.getElementById('collectBtn').addEventListener('click', () => game && game.collectResources());
-        document.getElementById('craftBtn').addEventListener('click', () => game && game.showCraftPanel());
-        document.getElementById('useBtn').addEventListener('click', () => game && game.showUsePanel());
-        document.getElementById('inventoryBtn').addEventListener('click', () => game && game.showInventory());
-        document.getElementById('achievementsBtn').addEventListener('click', () => game && game.showAchievements());
-        document.getElementById('nextDayBtn').addEventListener('click', () => game && game.nextDay());
-        document.querySelectorAll('.dir-btn').forEach(b => {
-            b.addEventListener('click', () => { if(game) { const d={'n':[0,-1],'s':[0,1],'e':[1,0],'w':[-1,0]}; game.move(...d[b.dataset.dir]); } });
-        });
-        document.getElementById('cheatBtn').addEventListener('click', () => game && game.enableCheat());
-        document.getElementById('confirmYes').addEventListener('click', () => game && game.confirmCheat());
-        document.getElementById('confirmNo').addEventListener('click', () => {
-            document.getElementById('confirmOverlay').classList.remove('active');
-        });
-        document.getElementById('panelClose').addEventListener('click', () => game && game.closePanel());
-        document.getElementById('panelOverlay').addEventListener('click', e => { if(e.target===e.currentTarget && game) game.closePanel(); });
-        document.getElementById('combatOverlay').addEventListener('click', e => { });
+        document.getElementById('beginBtn').addEventListener('click',()=>showCover('menu'));
+        document.getElementById('changelogBtn').addEventListener('click',()=>showCover('changelog'));
+        document.getElementById('qaBtn').addEventListener('click',()=>showCover('qa'));
+        document.getElementById('backChangelogBtn').addEventListener('click',()=>showCover('main'));
+        document.getElementById('backQABtn').addEventListener('click',()=>showCover('main'));
+        document.getElementById('newGameBtn').addEventListener('click',()=>showCover('new'));
+        document.getElementById('loadGameBtn').addEventListener('click',()=>{renderSaveList();showCover('load');});
+        document.getElementById('backBtn').addEventListener('click',()=>showCover('main'));
+        document.getElementById('backNewGameBtn').addEventListener('click',()=>showCover('menu'));
+        document.getElementById('backLoadBtn').addEventListener('click',()=>showCover('menu'));
+        document.getElementById('exportBtn').addEventListener('click',()=>{const m=JSON.parse(localStorage.getItem('wildEchoSave_meta')||'[]'); if(!m.length)return; const all={}; m.forEach(i=>all[i.id]=localStorage.getItem(`wildEchoSave_data_${i.id}`)); const b=new Blob([JSON.stringify(all)]); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='荒野回响_全存档.json'; a.click();});
+        document.getElementById('importBtn').addEventListener('click',()=>document.getElementById('importFile').click());
+        document.getElementById('importFile').addEventListener('change',e=>{if(e.target.files.length)importSave(e.target.files[0]);});
+        document.getElementById('customBtn').addEventListener('click',()=>document.getElementById('customDaysDiv').style.display='block');
+        document.getElementById('startCustomBtn').addEventListener('click',()=>{const v=parseInt(document.getElementById('customDaysInput').value); if(v>0)startNewGame(v);});
+        document.querySelectorAll('#coverNewGame .start-btn[data-days]').forEach(b=>b.addEventListener('click',e=>startNewGame(parseInt(e.target.dataset.days))));
+        document.getElementById('restartBtn').addEventListener('click',()=>{if(game)game.resetGame();});
+        document.getElementById('saveBtn').addEventListener('click',()=>{if(game)game.saveGame(null,false);});
+        document.getElementById('quitBtn').addEventListener('click',()=>{if(game)game.quitToMenu();});
+        document.getElementById('collectBtn').addEventListener('click',()=>game&&game.collectResources());
+        document.getElementById('craftBtn').addEventListener('click',()=>game&&game.showCraftPanel());
+        document.getElementById('useBtn').addEventListener('click',()=>game&&game.showUsePanel());
+        document.getElementById('inventoryBtn').addEventListener('click',()=>game&&game.showInventory());
+        document.getElementById('achievementsBtn').addEventListener('click',()=>game&&game.showAchievements());
+        document.getElementById('skillsBtn').addEventListener('click',()=>game&&game.showSkills());
+        document.getElementById('nextDayBtn').addEventListener('click',()=>game&&game.nextDay());
+        document.querySelectorAll('.dir-btn').forEach(b=>b.addEventListener('click',()=>{if(game){const d={'n':[0,-1],'s':[0,1],'e':[1,0],'w':[-1,0]};game.move(...d[b.dataset.dir]);}}));
+        document.getElementById('cheatBtn').addEventListener('click',()=>game&&game.enableCheat());
+        document.getElementById('confirmYes').addEventListener('click',()=>game&&game.confirmCheat());
+        document.getElementById('confirmNo').addEventListener('click',()=>document.getElementById('confirmOverlay').classList.remove('active'));
+        document.getElementById('panelClose').addEventListener('click',()=>game&&game.closePanel());
+        document.getElementById('panelOverlay').addEventListener('click',e=>{if(e.target===e.currentTarget&&game)game.closePanel();});
+        document.getElementById('combatOverlay').addEventListener('click',()=>{});
     })();
 </script>
 </body>
