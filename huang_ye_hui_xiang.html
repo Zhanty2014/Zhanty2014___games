@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>荒野回响 · v1.6.3 丰度显示</title>
+    <title>荒野回响 · v1.6.3 营养日结</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background: #1a1e2c; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
@@ -96,16 +96,16 @@
         <button class="btn warning" id="nextDayBtn">🌙 下一天</button>
         <div class="dir-buttons"><div class="dir-row"><button class="dir-btn" data-dir="n">↑</button></div><div class="dir-row"><button class="dir-btn" data-dir="w">←</button><button class="dir-btn" data-dir="s">↓</button><button class="dir-btn" data-dir="e">→</button></div></div>
     </div>
-    <div class="help-text">版本 1.6.3 · 状态栏丰度显示</div>
+    <div class="help-text">版本 1.6.3 · 营养日结 · 饮食更需规划</div>
 </div>
 <div class="panel-overlay" id="panelOverlay"><div class="panel-box" id="panelBox"><h3 id="panelTitle"></h3><div id="panelContent"></div><button class="panel-close" id="panelClose">关闭</button></div></div>
 <div class="cover-overlay active" id="coverOverlay">
-    <div class="cover-box" id="coverMain"><h1>🏕️ 荒野回响</h1><p>版本 1.6.3 · 丰度常驻显示</p><button class="start-btn" id="beginBtn">开始</button><button class="start-btn" id="changelogBtn">📋 更新日志</button><button class="start-btn" id="qaBtn">❓ Q&A</button></div>
+    <div class="cover-box" id="coverMain"><h1>🏕️ 荒野回响</h1><p>版本 1.6.3 · 营养日结</p><button class="start-btn" id="beginBtn">开始</button><button class="start-btn" id="changelogBtn">📋 更新日志</button><button class="start-btn" id="qaBtn">❓ Q&A</button></div>
     <div class="cover-box" id="coverMenu" style="display:none;"><h2>选择操作</h2><button class="start-btn" id="newGameBtn">🌱 新存档</button><button class="start-btn" id="loadGameBtn">📂 读档</button><button class="start-btn" id="backBtn">返回</button></div>
     <div class="cover-box" id="coverNewGame" style="display:none;"><h2>新建存档</h2><input type="text" id="saveNameInput" placeholder="存档名称" value="荒野求生" style="padding:8px; border-radius:8px; background:#1a1e2c; color:#fff; border:1px solid #4f5a7a; width:100%; margin-bottom:10px;"><div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:16px;"><button class="start-btn" data-days="30">🌱简单</button><button class="start-btn" data-days="60">🌿普通</button><button class="start-btn" data-days="90">🌳困难</button><button class="start-btn" data-days="0">♾无尽</button><button class="start-btn" id="customBtn">⚙自定义</button></div><div class="custom-days" id="customDaysDiv"><input type="number" id="customDaysInput" min="1" value="30"><button class="start-btn" id="startCustomBtn">开始</button></div><button class="start-btn" id="backNewGameBtn">返回</button></div>
     <div class="cover-box" id="coverLoadGame" style="display:none;"><h2>读取存档</h2><div id="saveListContainer"></div><div style="margin-top:12px; display:flex; gap:8px; justify-content:center;"><button class="start-btn" id="exportBtn">📤导出</button><button class="start-btn" id="importBtn">📥导入</button><input type="file" id="importFile" accept=".json" style="display:none;"></div><button class="start-btn" id="backLoadBtn">返回</button></div>
-    <div class="cover-box" id="coverChangelog" style="display:none;"><h2>📋 v1.6.3 更新日志</h2><div style="text-align:left; color:#d4dcec; max-height:300px; overflow-y:auto;"><ul><li>状态栏新增🌾丰度显示，实时查看当前地块资源丰度</li><li>每次进入已探索地块也更新丰度提示</li><li>采集面板保留丰度信息</li></ul></div><button class="start-btn" id="backChangelogBtn">返回</button></div>
-    <div class="cover-box" id="coverQA" style="display:none;"><h2>❓ Q&A</h2><div class="qa-box"><p><strong>Q:丰度怎么看？</strong><br>A:状态栏上方常驻显示当前地块丰度等级，采集面板也可见。</p></div><button class="start-btn" id="backQABtn">返回</button></div>
+    <div class="cover-box" id="coverChangelog" style="display:none;"><h2>📋 v1.6.3 更新日志</h2><div style="text-align:left; color:#d4dcec; max-height:300px; overflow-y:auto;"><ul><li>营养值改为每日结算，进食只记录种类</li><li>修复制作/使用按钮失效问题</li><li>状态栏实时显示当前地块丰度</li></ul></div><button class="start-btn" id="backChangelogBtn">返回</button></div>
+    <div class="cover-box" id="coverQA" style="display:none;"><h2>❓ Q&A</h2><div class="qa-box"><p><strong>Q:营养值怎么变化？</strong><br>A:每天结束时，根据当天吃过的食物种类计算营养变化。</p></div><button class="start-btn" id="backQABtn">返回</button></div>
 </div>
 <div class="end-overlay" id="endOverlay"><div class="end-box"><div class="end-message" id="endMessage"></div><button class="restart-btn" id="restartBtn">🔄 返回主菜单</button></div></div>
 <div class="combat-overlay" id="combatOverlay"><div class="combat-box" id="combatBox"><h3>⚔️ 遭遇野兽</h3><div id="combatContent"></div></div></div>
@@ -196,11 +196,10 @@
             addStory(text,cls=''){this.storyLog.push({text,cls});if(this.storyLog.length>300)this.storyLog.shift();}
             renderStory(){const el=document.getElementById('story');el.innerHTML=this.storyLog.map(l=>`<div class="story-line ${l.cls}">${l.text}</div>`).join('');el.scrollTop=el.scrollHeight;}
             renderStatus(){
-                const p=this.player;const set=(id,v,f)=>{const el=document.getElementById(id);el.textContent=f?v.toFixed(1):Math.round(v);el.className='value';if(v<=2)el.classList.add('danger');else if(v<=4)el.classList.add('warning');else if(v>=8)el.classList.add('good');};
+                const p=this.player;const set=(id,v,f)=>{const el=document.getElementById(id);if(!el)return;el.textContent=f?v.toFixed(1):Math.round(v);el.className='value';if(v<=2)el.classList.add('danger');else if(v<=4)el.classList.add('warning');else if(v>=8)el.classList.add('good');};
                 set('hp',p.hp);set('hunger',p.hunger);set('thirst',p.thirst);set('stamina',p.stamina,true);set('sanity',p.sanity);set('temp',p.temp);set('nutrition',p.nutrition);
                 document.getElementById('day').textContent=p.day;document.getElementById('coords').textContent=`(${p.x},${p.y})`;document.getElementById('weatherDisplay').textContent=this.weather;
-                const adEl=document.getElementById('abundanceDisplay');adEl.textContent=this.currentAbundance;
-                adEl.style.color=this.currentAbundance==='富饶'?'#f9c74f':(this.currentAbundance==='丰富'?'#9ece6a':(this.currentAbundance==='贫瘠'?'#f7768e':'#f0f4ff'));
+                const adEl=document.getElementById('abundanceDisplay');if(adEl){adEl.textContent=this.currentAbundance;adEl.style.color=this.currentAbundance==='富饶'?'#f9c74f':(this.currentAbundance==='丰富'?'#9ece6a':(this.currentAbundance==='贫瘠'?'#f7768e':'#f0f4ff'));}
                 document.getElementById('cheatBadge').classList.toggle('active',this.cheatMode);
             }
             renderMap(){const grid=document.getElementById('mapGrid');const rad=VIEW_RADIUS+(this.hasSkill('e3')?1:0);const s=2*rad+1;grid.style.gridTemplateColumns=`repeat(${s},44px)`;grid.style.gridTemplateRows=`repeat(${s},44px)`;grid.innerHTML='';for(let r=0;r<s;r++)for(let c=0;c<s;c++){const wx=this.player.x+(c-rad),wy=this.player.y+(r-rad);const cell=document.createElement('div');cell.className='map-cell';const zone=this.getZone(wx,wy);if(zone)cell.innerHTML=`<span>${TERRAIN_EMOJI[zone.type]||'?'}</span>`;else cell.textContent='·',cell.classList.add('unknown');if(wx===this.player.x&&wy===this.player.y)cell.classList.add('player');const lb=document.createElement('span');lb.className='coord-label';lb.textContent=`${wx},${wy}`;cell.appendChild(lb);grid.appendChild(cell);}}
@@ -209,7 +208,7 @@
             showToast(msg){const t=document.getElementById('toastMessage');t.textContent=msg;document.getElementById('toastOverlay').classList.add('active');setTimeout(()=>document.getElementById('toastOverlay').classList.remove('active'),2000);}
             checkAchievement(name){if(!this.achievements[name]){this.achievements[name]=true;this.showToast(`🏆 ${name}`);this.addStory(`🏆 成就解锁：${name}`,'success');}}
             hasSkill(id){return this.player.skills.unlocked[id]||false;}
-            updateNutrition(cats){if(this.cheatMode)return;const p=this.player;cats.forEach(c=>{p.dietHistory.push(c);if(p.dietHistory.length>5)p.dietHistory.shift();});const unique=new Set(p.dietHistory).size;let ch=0;if(unique===1)ch=-2;else if(unique===2)ch=-1;else if(unique===3)ch=0;else if(unique===4)ch=1;else ch=2;if(this.hasSkill('s7')&&ch<0)ch=Math.ceil(ch/2);p.nutrition=Math.min(10,Math.max(0,p.nutrition+ch));}
+            updateNutrition(cats){if(this.cheatMode)return;const p=this.player;cats.forEach(c=>{p.dietHistory.push(c);if(p.dietHistory.length>5)p.dietHistory.shift();});}
             gainExperience(cat,amt){if(this.cheatMode)return;const s=this.player.skills,exp=s.experience;exp[cat]=(exp[cat]||0)+amt*(cat==='采集'&&this.hasSkill('g1')?1.2:1);while(exp[cat]>=(s.levels[cat]+1)*100&&s.levels[cat]<10){exp[cat]-=(s.levels[cat]+1)*100;s.levels[cat]++;s.points++;this.addStory(`🎓 ${cat}升至${s.levels[cat]}级，+1技能点！`,'success');}}
             resetGame(){this.world.clear();this.player=createPlayer();this.storyLog=[];this.gameOver=false;this.won=false;this.cheatMode=false;this.weather='晴天';this.achievements={};this.inCombat=false;this.maxCollectToday=rand(2,4);this.currentSkillTab='采集';this.currentCraftTab='axe';this.currentAbundance='正常';game=this;this.initWorldAndStory();this.renderAll();document.getElementById('endOverlay').classList.remove('active');}
             saveGame(name,silent=false){const d={maxDay:this.maxDay,world:Array.from(this.world.entries()),player:this.player,storyLog:this.storyLog.slice(-50),gameOver:this.gameOver,won:this.won,cheatMode:this.cheatMode,weather:this.weather,achievements:this.achievements};try{localStorage.setItem(`wild_${this.saveId}`,JSON.stringify(d));const m=JSON.parse(localStorage.getItem('wild_meta')||'[]');const ex=m.find(i=>i.id===this.saveId);const n=name||(ex?ex.name:'荒野');const o={id:this.saveId,name:n,date:new Date().toLocaleString()};if(ex)Object.assign(ex,o);else m.push(o);localStorage.setItem('wild_meta',JSON.stringify(m));if(!silent){this.addStory('💾 已保存','info');this.renderStory();}}catch(e){if(!silent){this.addStory('保存失败','system');this.renderStory();}}}
@@ -263,6 +262,19 @@
                     if(!p.movedToday){let heal=2+(this.hasSkill('s3')?1:0);p.hp=Math.min(10+(this.hasSkill('f1')?1:0),p.hp+heal);}
                     p.movedToday=false;p.stamina=10;p.sanity=10;let tc=0;if(this.weather==='雨天')tc-=1;else if(this.weather==='暴风雨')tc-=2;
                     if(p.hasItem('篝火')&&p.hasItem('煤炭')){p.useItem('煤炭');tc+=2;}if(this.hasSkill('s4'))tc=Math.ceil(tc*0.7);p.temp=Math.min(10,Math.max(0,p.temp+tc));if(p.temp<=0){p.hp-=1;}
+                    // 每日营养结算
+                    const unique = new Set(p.dietHistory).size;
+                    let nutChange = 0;
+                    if (unique === 1) nutChange = -2;
+                    else if (unique === 2) nutChange = -1;
+                    else if (unique === 3) nutChange = 0;
+                    else if (unique === 4) nutChange = 1;
+                    else if (unique >= 5) nutChange = 2;
+                    if (this.hasSkill('s7') && nutChange < 0) nutChange = Math.ceil(nutChange / 2);
+                    p.nutrition = Math.min(10, Math.max(0, p.nutrition + nutChange));
+                    if (nutChange < 0) this.addStory(`营养值因偏食下降${-nutChange}点`,'system');
+                    else if (nutChange > 0) this.addStory(`营养值因饮食多样上升${nutChange}点`,'success');
+                    p.dietHistory = [];
                     if(p.nutrition<=2){p.hp-=(p.nutrition===0?2:1);this.addStory('营养不良扣血','combat');}
                     if(p.nutrition>=8)p.consecutiveGoodNutrition++;else p.consecutiveGoodNutrition=0;
                     if(p.consecutiveGoodNutrition>=5)this.checkAchievement('饮食均衡');
