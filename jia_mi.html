@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>加密 / 解密 · AES-256-GCM</title>
+<style>
+  * { box-sizing: border-box; }
+  :root {
+    --card: #ffffff;
+    --text: #1b2438;
+    --muted: #6b7793;
+    --line: #e2e8f4;
+    --primary: #3563ff;
+    --primary-dark: #2a4fd6;
+    --accent: #00a37a;
+    --danger: #e0484a;
+    --shadow: 0 10px 30px rgba(38, 71, 148, .10);
+  }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    padding: 36px 16px 64px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--text);
+    background:
+      radial-gradient(1100px 550px at 8% -10%, #dbe7ff 0%, transparent 60%),
+      radial-gradient(900px 480px at 100% 0%, #e0fbf2 0%, transparent 55%),
+      linear-gradient(180deg, #eef4ff, #f8fbff);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app { width: 100%; max-width: 760px; }
+  header { text-align: center; margin-bottom: 22px; }
+  h1 { margin: 0 0 8px; font-size: 26px; font-weight: 700; letter-spacing: -.3px; }
+  h1 .dot { color: var(--primary); }
+  .sub { margin: 0; font-size: 13.5px; color: var(--muted); }
+
+  /* 页面切换标签 */
+  .tabs {
+    display: flex;
+    gap: 6px;
+    padding: 6px;
+    margin: 0 auto 18px;
+    max-width: 420px;
+    background: rgba(255,255,255,.7);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.95);
+    border-radius: 16px;
+    box-shadow: var(--shadow);
+  }
+  .tabs button {
+    flex: 1;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 11px;
+    background: transparent;
+    color: #6b7793;
+    cursor: pointer;
+    box-shadow: none;
+    transition: background .18s, color .18s, box-shadow .18s;
+  }
+  .tabs button:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+    background: #e9f0fc;
+    border-color: transparent;
+  }
+  .tabs button.active {
+    background: #fff;
+    color: var(--primary);
+    box-shadow: 0 3px 10px rgba(38,71,148,.14);
+  }
+
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn .22s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .card {
+    background: rgba(255,255,255,.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,.95);
+    border-radius: 20px;
+    padding: 26px;
+    box-shadow: var(--shadow);
+  }
+  .field { margin-bottom: 18px; }
+  .field:last-of-type { margin-bottom: 0; }
+  label { display: block; font-size: 13px; font-weight: 600; color: #45516b; margin-bottom: 8px; letter-spacing: .2px; }
+  label .hint { font-weight: 400; color: var(--muted); font-size: 12px; margin-left: 6px; }
+  textarea, input[type="password"], input[type="text"] {
+    width: 100%;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text);
+    background: #fbfdff;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 13px 14px;
+    outline: none;
+    transition: border-color .18s, box-shadow .18s, background .18s;
+  }
+  textarea { min-height: 132px; resize: vertical; }
+  textarea.mono {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    font-size: 13.5px;
+    word-break: break-all;
+  }
+  textarea:focus, input:focus {
+    background: #fff;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 4px rgba(53,99,255,.12);
+  }
+  textarea[readonly] { background: #f6f9ff; }
+  .key-row { display: flex; gap: 10px; }
+  .key-row input { flex: 1; min-width: 0; }
+  .mode-switch {
+    display: inline-flex; gap: 4px; padding: 4px; margin-bottom: 10px;
+    background: #eef3fc; border: 1px solid #e2e8f4; border-radius: 12px;
+  }
+  .mode-switch button {
+    padding: 7px 15px; font-size: 13px; font-weight: 600;
+    border: none; border-radius: 9px; background: transparent; color: #6b7793; box-shadow: none;
+  }
+  .mode-switch button:hover:not(:disabled) { transform: none; box-shadow: none; background: #e4ecfa; border-color: transparent; }
+  .mode-switch button.active { background: #fff; color: var(--primary); box-shadow: 0 2px 8px rgba(38,71,148,.12); }
+  .key-hint { margin: 8px 2px 0; font-size: 12px; color: var(--muted); line-height: 1.6; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  button {
+    font-family: inherit; font-size: 14px; font-weight: 600; padding: 10px 20px;
+    border-radius: 10px; border: 1px solid var(--line); background: #fff; color: #45516b;
+    cursor: pointer; transition: transform .15s, box-shadow .15s, background .15s, border-color .15s;
+  }
+  button:hover:not(:disabled) { transform: translateY(-1px); border-color: #cdd8ee; box-shadow: 0 6px 14px rgba(38,71,148,.10); }
+  button:active:not(:disabled) { transform: translateY(0); }
+  button:disabled { opacity: .55; cursor: not-allowed; }
+  button.primary {
+    color: #fff; border-color: transparent;
+    background: linear-gradient(180deg, #4a76ff, var(--primary));
+    box-shadow: 0 6px 16px rgba(53,99,255,.28);
+  }
+  button.primary:hover:not(:disabled) { background: linear-gradient(180deg, #3f6bff, var(--primary-dark)); }
+  button.ghost { background: #f4f7fe; border-color: #e6edfb; }
+  #encToggle, #decToggle { min-width: 76px; }
+  [hidden] { display: none !important; }
+  .status {
+    margin-top: 16px; min-height: 20px; font-size: 13.5px; color: var(--muted);
+    transition: color .18s; line-height: 1.6; word-break: break-all;
+  }
+  .status.success { color: var(--accent); }
+  .status.error { color: var(--danger); }
+  footer { margin-top: 18px; text-align: center; font-size: 12.5px; color: #93a0bb; line-height: 1.8; }
+  footer code { background: #eef3ff; color: #4a6ab5; padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+  @media (max-width: 560px) {
+    body { padding: 22px 12px 48px; }
+    .card { padding: 20px 16px; border-radius: 16px; }
+    h1 { font-size: 22px; }
+    button { flex: 1 1 auto; padding: 10px 14px; }
+    .mode-switch { width: 100%; }
+    .mode-switch button { flex: 1; padding: 8px 10px; font-size: 12.5px; }
+    .key-row { flex-wrap: wrap; }
+    .key-row input { flex: 1 1 100%; }
+    .tabs { max-width: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>加密 <span class="dot">/</span> 解密</h1>
+      <p class="sub">AES-256-GCM · PBKDF2 · 密钥校验 · 全程本地运算，不联网</p>
+    </header>
+
+    <!-- 页面切换 -->
+    <div class="tabs" role="tablist" aria-label="页面切换">
+      <button type="button" id="tabEncrypt" class="active" role="tab" aria-selected="true">🔒 加密</button>
+      <button type="button" id="tabDecrypt" role="tab" aria-selected="false">🔓 解密</button>
+    </div>
+
+    <!-- ============ 加密页 ============ -->
+    <section class="page active" id="pageEncrypt" role="tabpanel">
+      <div class="card">
+        <div class="field">
+          <label for="encInput">明文内容 <span class="hint">（支持中文 / emoji）</span></label>
+          <textarea id="encInput" placeholder="在这里输入要加密的文字…" spellcheck="false"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="encKey">密钥 <span class="hint">（丢失后无法恢复，请妥善保存）</span></label>
+
+          <div class="mode-switch" role="tablist" aria-label="密钥模式">
+            <button type="button" id="encModeManual" class="active">手动密钥</button>
+            <button type="button" id="encModeAuto">自动密钥 · 16 位 Hash</button>
+          </div>
+
+          <div class="key-row">
+            <input id="encKey" type="password" placeholder="输入你的密钥…" autocomplete="off" spellcheck="false" />
+            <button id="encGenKey" type="button" class="ghost" hidden>生成</button>
+            <button id="encToggle" type="button" class="ghost">显示</button>
+          </div>
+
+          <p id="encKeyHint" class="key-hint">手动模式：密钥可以是任意字符，请务必牢记。</p>
+        </div>
+
+        <div class="actions">
+          <button id="encBtn" type="button" class="primary">🔒 加密</button>
+          <button id="encClear" type="button" class="ghost">清空</button>
+        </div>
+
+        <div class="field" style="margin-top:22px">
+          <label for="encOutput">密文结果</label>
+          <textarea id="encOutput" class="mono" readonly placeholder="加密后的密文会显示在这里…" spellcheck="false"></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="encCopy" type="button">复制密文</button>
+          <button id="encToDecrypt" type="button" class="ghost">密文 → 解密页</button>
+        </div>
+
+        <div id="encStatus" class="status"></div>
+      </div>
+    </section>
+
+    <!-- ============ 解密页（仅手动密钥） ============ -->
+    <section class="page" id="pageDecrypt" role="tabpanel">
+      <div class="card">
+        <div class="field">
+          <label for="decInput">密文内容 <span class="hint">（粘贴加密生成的 Base64 密文）</span></label>
+          <textarea id="decInput" class="mono" placeholder="在这里粘贴要解密的密文…" spellcheck="false"></textarea>
+        </div>
+
+        <div class="field">
+          <label for="decKey">密钥 <span class="hint">（必须与加密时完全一致）</span></label>
+          <div class="key-row">
+            <input id="decKey" type="password" placeholder="输入加密时使用的密钥…" autocomplete="off" spellcheck="false" />
+            <button id="decToggle" type="button" class="ghost">显示</button>
+          </div>
+          <p class="key-hint">解密只能手动输入密钥：密钥必须与加密时完全一致，无法自动生成匹配的 Hash。</p>
+        </div>
+
+        <div class="actions">
+          <button id="decBtn" type="button" class="primary">🔓 解密</button>
+          <button id="decClear" type="button" class="ghost">清空</button>
+        </div>
+
+        <div class="field" style="margin-top:22px">
+          <label for="decOutput">明文结果</label>
+          <textarea id="decOutput" placeholder="解密后的明文会显示在这里…" readonly spellcheck="false"></textarea>
+        </div>
+
+        <div class="actions">
+          <button id="decCopy" type="button">复制明文</button>
+          <button id="decToEncrypt" type="button" class="ghost">明文 → 加密页</button>
+        </div>
+
+        <div id="decStatus" class="status"></div>
+      </div>
+    </section>
+
+    <footer>
+      密文格式：Base64( Salt + IV + 密钥校验值 + AES-GCM 密文 )<br />
+      加密页支持手动密钥或自动生成 16 位 Hash；解密页只需填入与加密时相同的密钥
+    </footer>
+  </div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- 常量 ---------- */
+  const SALT_LEN      = 16;
+  const IV_LEN        = 12;
+  const KEY_CHECK_LEN = 8;
+  const TAG_LEN       = 16;
+  const ITERATIONS    = 150000;
+  const KEY_CHECK_MSG = 'KEY_CHECK';
+
+  const encoder = new TextEncoder();
+  const decoder = new TextDecoder('utf-8', { fatal: true });
+
+  /* ---------- 通用工具 ---------- */
+  function hasCrypto() {
+    return !!(window.crypto && window.crypto.subtle && window.crypto.getRandomValues);
+  }
+  function bytesToBase64(bytes) {
+    let bin = '';
+    const CHUNK = 0x8000;
+    for (let i = 0; i < bytes.length; i += CHUNK) {
+      bin += String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK));
+    }
+    return btoa(bin);
+  }
+  function base64ToBytes(str) {
+    let bin;
+    try { bin = atob(str); }
+    catch (e) { throw new Error('密文不是有效的 Base64 字符串'); }
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+    return bytes;
+  }
+  async function generateAutoKey() {
+    const rand = crypto.getRandomValues(new Uint8Array(8));
+    let hex = '';
+    for (let i = 0; i < rand.length; i++) hex += rand[i].toString(16).padStart(2, '0');
+    return hex;
+  }
+  function isAutoKeyFormat(v) { return /^[0-9a-f]{16}$/i.test(v); }
+
+  /* ---------- 核心加密解密 ---------- */
+  async function deriveKeys(password, salt) {
+    const baseKey = await crypto.subtle.importKey(
+      'raw', encoder.encode(password), { name: 'PBKDF2' }, false, ['deriveBits']
+    );
+    const bits = await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', salt, iterations: ITERATIONS, hash: 'SHA-256' },
+      baseKey, 512
+    );
+    const bytes = new Uint8Array(bits);
+    const aesKeyBytes = bytes.slice(0, 32);
+    const hmacKeyBytes = bytes.slice(32, 64);
+    const aesKey = await crypto.subtle.importKey(
+      'raw', aesKeyBytes, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']
+    );
+    const hmacKey = await crypto.subtle.importKey(
+      'raw', hmacKeyBytes, { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    return { aesKey, hmacKey };
+  }
+
+  async function computeKeyCheck(hmacKey) {
+    const sig = await crypto.subtle.sign('HMAC', hmacKey, encoder.encode(KEY_CHECK_MSG));
+    return new Uint8Array(sig).slice(0, KEY_CHECK_LEN);
+  }
+
+  async function encryptText(plainText, password) {
+    const salt = crypto.getRandomValues(new Uint8Array(SALT_LEN));
+    const iv   = crypto.getRandomValues(new Uint8Array(IV_LEN));
+    const { aesKey, hmacKey } = await deriveKeys(password, salt);
+    const keyCheck = await computeKeyCheck(hmacKey);
+    const cipherBuf = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv, tagLength: TAG_LEN * 8 },
+      aesKey,
+      encoder.encode(plainText)
+    );
+    const cipher = new Uint8Array(cipherBuf);
+    const out = new Uint8Array(SALT_LEN + IV_LEN + KEY_CHECK_LEN + cipher.length);
+    let offset = 0;
+    out.set(salt, offset); offset += SALT_LEN;
+    out.set(iv, offset); offset += IV_LEN;
+    out.set(keyCheck, offset); offset += KEY_CHECK_LEN;
+    out.set(cipher, offset);
+    return bytesToBase64(out);
+  }
+
+  async function decryptText(base64Str, password) {
+    const raw = base64Str.replace(/\s+/g, '');
+    if (!raw) throw new Error('密文为空');
+    const bytes = base64ToBytes(raw);
+    const minLen = SALT_LEN + IV_LEN + KEY_CHECK_LEN + TAG_LEN;
+    if (bytes.length < minLen) throw new Error('密文长度不正确，可能不完整');
+
+    const salt     = bytes.subarray(0, SALT_LEN);
+    const iv       = bytes.subarray(SALT_LEN, SALT_LEN + IV_LEN);
+    const keyCheck = bytes.subarray(SALT_LEN + IV_LEN, SALT_LEN + IV_LEN + KEY_CHECK_LEN);
+    const cipher   = bytes.subarray(SALT_LEN + IV_LEN + KEY_CHECK_LEN);
+
+    const { aesKey, hmacKey } = await deriveKeys(password, salt);
+    const expected = await computeKeyCheck(hmacKey);
+    for (let i = 0; i < KEY_CHECK_LEN; i++) {
+      if (keyCheck[i] !== expected[i]) throw new Error('密钥错误（密钥校验失败），无法解密');
+    }
+
+    let plainBuf;
+    try {
+      plainBuf = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv, tagLength: TAG_LEN * 8 },
+        aesKey, cipher
+      );
+    } catch (e) {
+      throw new Error('密文已被篡改或损坏，无法解密');
+    }
+    try {
+      return decoder.decode(plainBuf);
+    } catch (e) {
+      throw new Error('解密成功但内容不是合法的 UTF-8 文本');
+    }
+  }
+
+  /* ---------- 页面切换 ---------- */
+  const tabEncrypt = document.getElementById('tabEncrypt');
+  const tabDecrypt = document.getElementById('tabDecrypt');
+  const pageEncrypt = document.getElementById('pageEncrypt');
+  const pageDecrypt = document.getElementById('pageDecrypt');
+
+  function switchPage(page) {
+    const isEnc = page === 'encrypt';
+    tabEncrypt.classList.toggle('active', isEnc);
+    tabDecrypt.classList.toggle('active', !isEnc);
+    tabEncrypt.setAttribute('aria-selected', String(isEnc));
+    tabDecrypt.setAttribute('aria-selected', String(!isEnc));
+    pageEncrypt.classList.toggle('active', isEnc);
+    pageDecrypt.classList.toggle('active', !isEnc);
+  }
+  tabEncrypt.addEventListener('click', () => switchPage('encrypt'));
+  tabDecrypt.addEventListener('click', () => switchPage('decrypt'));
+
+  /* ---------- 加密页 ---------- */
+  const encInput   = document.getElementById('encInput');
+  const encKey     = document.getElementById('encKey');
+  const encOutput  = document.getElementById('encOutput');
+  const encStatus  = document.getElementById('encStatus');
+  const encBtn     = document.getElementById('encBtn');
+  const encClear   = document.getElementById('encClear');
+  const encCopy    = document.getElementById('encCopy');
+  const encToDec   = document.getElementById('encToDecrypt');
+  const encToggle  = document.getElementById('encToggle');
+  const encGen     = document.getElementById('encGenKey');
+  const encModeManual = document.getElementById('encModeManual');
+  const encModeAuto   = document.getElementById('encModeAuto');
+  const encKeyHint    = document.getElementById('encKeyHint');
+
+  let encMode = 'manual';
+
+  function setEncStatus(msg, type) {
+    encStatus.textContent = msg || '';
+    encStatus.className = 'status' + (type ? ' ' + type : '');
+  }
+  function revealEncKey() {
+    encKey.type = 'text';
+    encToggle.textContent = '隐藏';
+  }
+  function setEncMode(mode) {
+    encMode = mode;
+    encModeManual.classList.toggle('active', mode === 'manual');
+    encModeAuto.classList.toggle('active', mode === 'auto');
+    if (mode === 'auto') {
+      encGen.hidden = false;
+      encKey.placeholder = '点击「生成」获得 16 位 Hash，或粘贴已有 Hash';
+      encKeyHint.textContent = '自动模式：密钥为 16 位十六进制 Hash。加密时会自动生成（或复用已填写的 Hash），请保存密钥以便日后解密。';
+    } else {
+      encGen.hidden = true;
+      encKey.placeholder = '输入你的密钥…';
+      encKeyHint.textContent = '手动模式：密钥可以是任意字符，请务必牢记。';
+    }
+    setEncStatus('');
+  }
+  encModeManual.addEventListener('click', () => setEncMode('manual'));
+  encModeAuto.addEventListener('click', () => setEncMode('auto'));
+
+  encGen.addEventListener('click', async () => {
+    if (!hasCrypto()) { setEncStatus('当前环境不支持 Web Crypto API', 'error'); return; }
+    try {
+      encKey.value = await generateAutoKey();
+      revealEncKey();
+      setEncStatus('已生成 16 位 Hash 密钥，请保存好再加密', 'success');
+    } catch (e) {
+      console.error(e); setEncStatus('生成密钥失败：' + (e.message || e), 'error');
+    }
+  });
+  encToggle.addEventListener('click', () => {
+    const show = encKey.type === 'password';
+    encKey.type = show ? 'text' : 'password';
+    encToggle.textContent = show ? '隐藏' : '显示';
+    encKey.focus();
+  });
+
+  encBtn.addEventListener('click', async () => {
+    if (!hasCrypto()) { setEncStatus('当前环境不支持 Web Crypto API', 'error'); return; }
+    const text = encInput.value;
+    if (!text) return setEncStatus('请先输入要加密的内容', 'error');
+
+    let pwd = encKey.value.trim();
+    if (encMode === 'auto') {
+      if (!pwd) {
+        try { pwd = await generateAutoKey(); }
+        catch (e) { return setEncStatus('生成自动密钥失败：' + (e.message || e), 'error'); }
+        encKey.value = pwd;
+        revealEncKey();
+      }
+      if (!isAutoKeyFormat(pwd)) return setEncStatus('自动密钥必须是 16 位十六进制 Hash', 'error');
+    } else if (!pwd) {
+      return setEncStatus('请输入密钥', 'error');
+    }
+
+    try {
+      encBtn.disabled = true;
+      setEncStatus('正在加密…');
+      const result = await encryptText(text, pwd);
+      encOutput.value = result;
+      if (encMode === 'auto') {
+        setEncStatus('✅ 加密成功。请保存密钥框中的 16 位 Hash：' + pwd, 'success');
+      } else {
+        setEncStatus('✅ 加密成功，请妥善保管密钥', 'success');
+      }
+    } catch (err) {
+      console.error(err);
+      setEncStatus('加密失败：' + (err.message || err), 'error');
+    } finally {
+      encBtn.disabled = false;
+    }
+  });
+
+  encClear.addEventListener('click', () => {
+    encInput.value = '';
+    encOutput.value = '';
+    encKey.value = '';
+    encKey.type = 'password';
+    encToggle.textContent = '显示';
+    setEncStatus('');
+    encInput.focus();
+  });
+
+  encCopy.addEventListener('click', async () => {
+    const text = encOutput.value;
+    if (!text) return setEncStatus('没有可复制的内容', 'error');
+    try {
+      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+      else { encOutput.removeAttribute('readonly'); encOutput.select(); encOutput.setSelectionRange(0, text.length); document.execCommand('copy'); encOutput.setAttribute('readonly','readonly'); window.getSelection().removeAllRanges(); }
+      setEncStatus('📋 已复制密文', 'success');
+    } catch (e) { setEncStatus('复制失败，请手动复制', 'error'); }
+  });
+
+  encToDec.addEventListener('click', () => {
+    if (!encOutput.value) return setEncStatus('密文为空，无法移动', 'error');
+    document.getElementById('decInput').value = encOutput.value;
+    switchPage('decrypt');
+    setEncStatus('');
+    document.getElementById('decStatus').textContent = '已从加密页带入密文，请输入密钥后解密';
+  });
+
+  /* ---------- 解密页（仅手动密钥） ---------- */
+  const decInput   = document.getElementById('decInput');
+  const decKey     = document.getElementById('decKey');
+  const decOutput  = document.getElementById('decOutput');
+  const decStatus  = document.getElementById('decStatus');
+  const decBtn     = document.getElementById('decBtn');
+  const decClear   = document.getElementById('decClear');
+  const decCopy    = document.getElementById('decCopy');
+  const decToEnc   = document.getElementById('decToEncrypt');
+  const decToggle  = document.getElementById('decToggle');
+
+  function setDecStatus(msg, type) {
+    decStatus.textContent = msg || '';
+    decStatus.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  decToggle.addEventListener('click', () => {
+    const show = decKey.type === 'password';
+    decKey.type = show ? 'text' : 'password';
+    decToggle.textContent = show ? '隐藏' : '显示';
+    decKey.focus();
+  });
+
+  decBtn.addEventListener('click', async () => {
+    if (!hasCrypto()) { setDecStatus('当前环境不支持 Web Crypto API', 'error'); return; }
+    const text = decInput.value.trim();
+    if (!text) return setDecStatus('请先粘贴要解密的密文', 'error');
+
+    const pwd = decKey.value.trim();
+    if (!pwd) return setDecStatus('请输入密钥', 'error');
+
+    try {
+      decBtn.disabled = true;
+      setDecStatus('正在解密…');
+      const result = await decryptText(text, pwd);
+      decOutput.value = result;
+      setDecStatus('✅ 解密成功', 'success');
+    } catch (err) {
+      console.error(err);
+      decOutput.value = '';
+      setDecStatus(err.message || '解密失败', 'error');
+    } finally {
+      decBtn.disabled = false;
+    }
+  });
+
+  decClear.addEventListener('click', () => {
+    decInput.value = '';
+    decOutput.value = '';
+    decKey.value = '';
+    decKey.type = 'password';
+    decToggle.textContent = '显示';
+    setDecStatus('');
+    decInput.focus();
+  });
+
+  decCopy.addEventListener('click', async () => {
+    const text = decOutput.value;
+    if (!text) return setDecStatus('没有可复制的内容', 'error');
+    try {
+      if (navigator.clipboard && window.isSecureContext) await navigator.clipboard.writeText(text);
+      else { decOutput.removeAttribute('readonly'); decOutput.select(); decOutput.setSelectionRange(0, text.length); document.execCommand('copy'); decOutput.setAttribute('readonly','readonly'); window.getSelection().removeAllRanges(); }
+      setDecStatus('📋 已复制明文', 'success');
+    } catch (e) { setDecStatus('复制失败，请手动复制', 'error'); }
+  });
+
+  decToEnc.addEventListener('click', () => {
+    if (!decOutput.value) return setDecStatus('明文为空，无法移动', 'error');
+    document.getElementById('encInput').value = decOutput.value;
+    switchPage('encrypt');
+    setDecStatus('');
+    document.getElementById('encStatus').textContent = '已从解密页带入明文，可修改后重新加密';
+  });
+
+  /* ---------- 初始化 ---------- */
+  if (!hasCrypto()) {
+    setEncStatus('⚠️ 当前环境不支持 Web Crypto API，请通过 HTTPS 或 localhost 访问（GitHub Pages 默认支持）。', 'error');
+    setDecStatus('⚠️ 当前环境不支持 Web Crypto API，请通过 HTTPS 或 localhost 访问（GitHub Pages 默认支持）。', 'error');
+  }
+  encInput.focus();
+})();
+</script>
+</body>
+</html>
