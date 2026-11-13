@@ -115,6 +115,21 @@ const VM = (function () {
         const stateDef = (def.states || {})[item.state] || {};
         out(`[台面] 把 ${stateDef.desc || def.name || itemId} 放在了台面上。`, "sys");
       }
+    },    
+    // 新增：把东西从台面收回背包
+    pick(ctx, ins) {
+      const itemId = ins.item || (ctx.target ? ctx.target.id : null);
+      if (!itemId) return;
+      
+      if (state.items[itemId]) {
+        const item = state.items[itemId];
+        state.inv.push(item);
+        delete state.items[itemId];
+        
+        const def = DATA.items[itemId] || {};
+        const stateDef = (def.states || {})[item.state] || {};
+        out(`[背包] 把 ${stateDef.desc || def.name || itemId} 收回了背包。`, "sys");
+      }
     },
 
     set(ctx, ins) {
