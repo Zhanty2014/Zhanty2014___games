@@ -6,6 +6,31 @@
       "egg": "cooked" 
     },
     "result": "tomato_egg",
-    "price": 18
+    "price": 14
+  },
+  "water_egg": {
+    "name": "水煮蛋",
+    "ingredients": {  
+      "egg": "washed" 
+    },
+    "result": "water_egg",
+    "price": 3
+  },
+  "tea_egg": {
+    "name": "茶叶蛋",
+    "ingredients": {
+      "egg": "washed",
+      "tea": "washed"
+    },
+    "result": "tea_egg",
+    "price": 5
+  },
+  "cold_tomato_salad": {
+    "name": "凉拌番茄",
+    "ingredients": {
+      "tomato": "chopped"
+    },
+    "result": "cold_tomato_salad",
+    "price": 6
   }
 }

@@ -22,10 +22,35 @@
       "burnt":   { "desc": "焦黑的鸡蛋" }
     }
   },
+    "tea": {
+    "name": "茶叶",
+    "states": {
+      "raw":     { "desc": "干巴巴的茶叶" },
+      "washed":  { "desc": "洗净的茶叶" }
+    }
+  },
+  "tea_egg": {
+    "name": "茶叶蛋",
+    "states": {
+      "dish": { "desc": "香气扑鼻的茶叶蛋" }
+    }
+  },
   "tomato_egg": {
     "name": "番茄炒蛋",
     "states": {
       "dish": { "desc": "热腾腾的番茄炒蛋" }
+    }
+  },
+  "water_egg": {
+    "name": "水煮蛋",
+    "states":{
+      "dish":{"desc":"剥好壳的水煮蛋"}
+    }
+  },
+  "cold_tomato_salad":{
+    "name":"凉拌番茄",
+    "states":{
+      "dish":{"desc":"加了白糖的凉拌番茄"}
     }
   }
 }

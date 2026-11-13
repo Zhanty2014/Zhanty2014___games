@@ -23,6 +23,7 @@
     "shop": [
       { "id": "tomato", "price": 0 },
       { "id": "egg", "price": 0 },
+      { "id": "tea", "price": 0 },
       { "id": "knife", "price": 0 },
       { "id": "pan", "price": 0 }
     ],
