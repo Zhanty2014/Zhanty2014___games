@@ -1,0 +1,13 @@
+{
+  "customer_1": {
+    "name": "王大爷",
+    "patience": 30,
+    "onSpawn": [
+      { "op": "say", "text": "{self.name}推门进来：「服务员，来份{self.orderName}！」" }
+    ],
+    "onTimeout": [
+      { "op": "say", "text": "{self.name}等急了，嘟囔着「饿死老子了」，摔门走了。" },
+      { "op": "add", "path": "rating", "value": -1 }
+    ]
+  }
+}

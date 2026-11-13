@@ -1,0 +1,10 @@
+{
+  "start": {
+    "room": "kitchen",
+    "money": 0,
+    "rating": 5,
+    "inv": [],
+    "items": {},
+    "unlockedRecipes": []
+  }
+}

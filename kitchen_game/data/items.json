@@ -1,0 +1,31 @@
+{
+  "knife": { "name": "菜刀" },
+  "pan": { "name": "炒锅" },
+  
+  "tomato": {
+    "name": "番茄",
+    "states": {
+      "raw":     { "desc": "带泥的番茄" },
+      "washed":  { "desc": "洗净的番茄" },
+      "chopped": { "desc": "切好的番茄" },
+      "cooked":  { "desc": "炒熟的番茄" },
+      "burnt":   { "desc": "焦黑的番茄" }
+    }
+  },
+  "egg": {
+    "name": "鸡蛋",
+    "states": {
+      "raw":     { "desc": "带泥的鸡蛋" },
+      "washed":  { "desc": "洗净的鸡蛋" },
+      "chopped": { "desc": "打散的蛋液" },
+      "cooked":  { "desc": "炒熟的鸡蛋" },
+      "burnt":   { "desc": "焦黑的鸡蛋" }
+    }
+  },
+  "tomato_egg": {
+    "name": "番茄炒蛋",
+    "states": {
+      "dish": { "desc": "热腾腾的番茄炒蛋" }
+    }
+  }
+}

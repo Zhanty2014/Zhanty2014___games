@@ -1,0 +1,32 @@
+{
+  "kitchen": {
+    "name": "厨房",
+    "desc": "灶台上的火苗呼呼作响，砧板旁放着一把菜刀，台面上摆着食材。切、洗、炒都在这里完成。",
+    "onEnter": [],
+    "onTick": []
+  },
+  "dining": {
+    "name": "餐厅",
+    "desc": "几张木桌靠窗摆着。顾客会来这里等餐，把做好的菜端过来出餐吧。",
+    "onEnter": [],
+    "onTick": []
+  },
+  "storage": {
+    "name": "储物间",
+    "desc": "冰箱嗡嗡作响，架子上码着杂物。",
+    "onEnter": [],
+    "onTick": []
+  },
+  "market": {
+    "name": "早市",
+    "desc": "清晨的菜市场热闹非凡。开发1.0暂时免费。",
+    "shop": [
+      { "id": "tomato", "price": 0 },
+      { "id": "egg", "price": 0 },
+      { "id": "knife", "price": 0 },
+      { "id": "pan", "price": 0 }
+    ],
+    "onEnter": [],
+    "onTick": []
+  }
+}

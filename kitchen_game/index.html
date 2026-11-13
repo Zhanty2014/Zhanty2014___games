@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>厨房模拟器 · 文字版</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #0d1117; color: #c9d1d9;
+    font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
+    font-size: 15px; line-height: 1.6;
+    display: flex; flex-direction: column;
+    padding: 12px; gap: 8px; height: 100vh; overflow: hidden;
+  }
+  #cover {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: #010409; display: flex; flex-direction: column; justify-content: center; align-items: center;
+    z-index: 9999; transition: opacity 0.5s ease;
+  }
+  #cover.hidden { opacity: 0; pointer-events: none; }
+  .cover-title { font-size: 48px; font-weight: bold; color: #58a6ff; margin-bottom: 10px; text-shadow: 0 0 10px rgba(88,166,255,0.3); }
+  .cover-subtitle { font-size: 16px; color: #8b949e; margin-bottom: 40px; }
+  .cover-emoji { font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite ease-in-out; }
+  @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+  #start-btn { font: inherit; font-size: 20px; padding: 12px 36px; border-radius: 8px; cursor: pointer; border: 2px solid #3fb950; background: rgba(63,185,80,0.1); color: #3fb950; transition: all 0.2s; }
+  #start-btn:hover { background: #3fb950; color: #fff; box-shadow: 0 0 15px rgba(63,185,80,0.5); }
+  #screen {
+    flex: 1; min-height: 0; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
+    padding: 10px; background: #010409; border: 1px solid #30363d; border-radius: 6px;
+  }
+  .line { margin: 2px 0; }
+  .line.echo { color: #58a6ff; }
+  .line.sys { color: #8b949e; font-style: italic; }
+  .section { flex-shrink: 0; }
+  .section-title { font-size: 12px; color: #8b949e; margin-bottom: 4px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 6px; }
+  #map-bar { display: flex; gap: 10px; }
+  .map-btn {
+    flex: 1; padding: 10px 0; font-size: 15px; font-weight: bold; text-align: center;
+    border: 2px solid #30363d; border-radius: 6px; background: #161b22; color: #8b949e;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .map-btn:hover { border-color: #8b949e; color: #c9d1d9; }
+  .map-btn.active { background: #1f6feb; border-color: #58a6ff; color: #fff; box-shadow: 0 0 10px rgba(88,166,255,0.3); }
+  button.cmd-btn, button.item-btn {
+    font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer;
+    border: 1px solid #30363d; background: #21262d; color: #c9d1d9; transition: all 0.1s;
+  }
+  button.cmd-btn:hover, button.item-btn:hover { background: #30363d; border-color: #8b949e; }
+  button:active { transform: translateY(1px); }
+  .item-btn.selected { background: #1f6feb; border-color: #58a6ff; color: #fff; }
+  .cmd-btn { color: #79c0ff; }
+  .scene-btn { color: #d2a8ff; border-color: #6e40c9; background: #1c1528; }
+  .scene-btn:hover { background: #2c1b3e; border-color: #a371f7; }
+  .inv-tag { padding: 4px 10px; background: #161b22; border: 1px solid #30363d; border-radius: 4px; font-size: 12px; color: #8b949e; }
+  .empty { color: #484f58; font-size: 12px; font-style: italic; }
+  #hint { font-size: 12px; color: #8b949e; flex-shrink: 0; min-height: 1em; }
+</style>
+</head>
+<body>
+  <div id="cover">
+    <div class="cover-emoji">🍳</div>
+    <div class="cover-title">厨房模拟器——文字mud游戏</div>
+    <div class="cover-subtitle">版本：1.0.0</div>
+    <button id="start-btn">开始游戏</button>
+  </div>
+
+  <div id="screen"></div>
+
+  <div class="section">
+    <div class="section-title">地图导航</div>
+    <div id="map-bar"></div>
+  </div>
+
+  <div class="section" id="shop-section" style="display: none;">
+    <div class="section-title">早市商品列表</div>
+    <div id="shop-bar" class="bar"></div>
+  </div>
+
+  <!-- 顾客列表 -->
+  <div class="section" id="npcs-section" style="display: none;">
+    <div class="section-title">餐厅顾客（先点顾客，再点台面菜出餐）</div>
+    <div id="npcs-bar" class="bar"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">台面物品（点击选中）</div>
+    <div id="items-bar" class="bar"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">背包（点击食材放上台面）</div>
+    <div id="inventory-bar" class="bar"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">场景动作</div>
+    <div id="scene-actions-bar" class="bar"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">基础操作</div>
+    <div id="commands-bar" class="bar"></div>
+  </div>
+
+  <div id="hint"></div>
+
+  <script src="engine.js"></script>
+  <script src="main.js"></script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "tomato_egg": {
+    "name": "番茄炒蛋",
+    "ingredients": { 
+      "tomato": "cooked", 
+      "egg": "cooked" 
+    },
+    "result": "tomato_egg",
+    "price": 18
+  }
+}
