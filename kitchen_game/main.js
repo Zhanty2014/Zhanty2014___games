@@ -276,6 +276,7 @@
     hintEl.textContent = `已选中台面：${stateDef.desc || def.name || selectedItemId}（再次点击取消）`;
   }
 
+  // 初始渲染
   renderMap();
   renderShop(); 
   renderNpcs();
@@ -284,6 +285,7 @@
   renderCommands();
   updateHint();
 
+  // 定时刷新 UI
   setInterval(() => {
     renderMap();
     renderShop(); 
@@ -294,6 +296,97 @@
     updateHint();
   }, 800);
 
+  // ==================== 新增：存读档 UI 逻辑 ====================
+  const modal = document.getElementById("save-modal");
+  const modalTitle = document.getElementById("modal-title");
+  const saveInputArea = document.getElementById("save-input-area");
+  const saveListArea = document.getElementById("save-list-area");
+  const saveNameInput = document.getElementById("save-name-input");
+
+  // 关闭弹窗
+  document.getElementById("btn-close-modal").onclick = () => {
+    modal.style.display = "none";
+  };
+
+  // 打开存档弹窗
+  document.getElementById("btn-open-save").onclick = () => {
+    modal.style.display = "flex";
+    modalTitle.textContent = "保存游戏进度";
+    saveInputArea.style.display = "block";
+    saveListArea.style.display = "none";
+    // 默认名字
+    saveNameInput.value = `厨房历险 - ${new Date().toLocaleTimeString()}`;
+  };
+
+  // 确认存档
+  document.getElementById("btn-do-save").onclick = () => {
+    const name = saveNameInput.value.trim();
+    if (VM.save(name)) {
+      modal.style.display = "none";
+    }
+  };
+
+  // 打开读档弹窗
+  document.getElementById("btn-open-load").onclick = () => {
+    modal.style.display = "flex";
+    modalTitle.textContent = "选择要读取的存档";
+    saveInputArea.style.display = "none";
+    saveListArea.style.display = "block";
+    renderSaveList();
+  };
+
+  // 渲染存档列表
+  function renderSaveList() {
+    const saves = VM.getSaves();
+    saveListArea.innerHTML = "";
+    if (saves.length === 0) {
+      saveListArea.innerHTML = '<div style="color:#8b949e;text-align:center;padding:10px;">暂无存档</div>';
+      return;
+    }
+
+    // 倒序显示（最新的在最上面）
+    saves.reverse().forEach(s => {
+      const item = document.createElement("div");
+      item.className = "save-list-item";
+      item.innerHTML = `
+        <div class="save-list-info">
+          <div class="save-list-name">${s.name}</div>
+          <div class="save-list-date">${s.date}</div>
+        </div>
+        <div class="save-list-actions">
+          <button class="cmd-btn btn-load" style="color:#3fb950; border-color:#3fb950;">读取</button>
+          <button class="cmd-btn btn-del" style="color:#f85149; border-color:#f85149;">删除</button>
+        </div>
+      `;
+      
+      // 读取按钮
+      item.querySelector(".btn-load").onclick = () => {
+        if (VM.load(s.id)) {
+          modal.style.display = "none";
+          // 读档后必须刷新整个页面 UI
+          renderMap();
+          renderShop();
+          renderNpcs();
+          renderItems();
+          renderInventory();
+          renderCommands();
+          updateHint();
+        }
+      };
+
+      // 删除按钮
+      item.querySelector(".btn-del").onclick = () => {
+        if (confirm("确定要删除这个存档吗？")) {
+          VM.deleteSave(s.id);
+          renderSaveList(); // 重新渲染列表
+        }
+      };
+
+      saveListArea.appendChild(item);
+    });
+  }
+
+  // ==================== 封面开始逻辑 ====================
   const cover = document.getElementById("cover");
   const startBtn = document.getElementById("start-btn");
   startBtn.onclick = () => {

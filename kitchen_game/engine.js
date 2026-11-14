@@ -116,7 +116,7 @@ const VM = (function () {
         out(`[台面] 把 ${stateDef.desc || def.name || itemId} 放在了台面上。`, "sys");
       }
     },    
-    // 新增：把东西从台面收回背包
+    
     pick(ctx, ins) {
       const itemId = ins.item || (ctx.target ? ctx.target.id : null);
       if (!itemId) return;
@@ -161,13 +161,11 @@ const VM = (function () {
       const def = DATA.npcs[ins.npc];
       if (!def) return;
       
-      // 检查是否有已解锁的菜谱
       if (state.unlockedRecipes.length === 0) {
         out(`${def.name || ins.npc}推门进来，看了看空荡荡的菜单：“不是咋没菜，走了走了。”`, "sys");
         return;
       }
 
-      // 随机取一个解锁的菜谱
       const randomIndex = Math.floor(Math.random() * state.unlockedRecipes.length);
       const randomRecipeId = state.unlockedRecipes[randomIndex];
       const recipeDef = DATA.recipes[randomRecipeId];
@@ -303,7 +301,7 @@ const VM = (function () {
     const start = data.config?.start || {};
     const s = {
       room: start.room || Object.keys(data.rooms)[0],
-      money: start.money ?? 50, // 默认 50 块起步
+      money: start.money ?? 50,
       rating: start.rating ?? 5,
       inv: (start.inv || []).map(id => ({ id, state: "raw" })),
       items: {}, npcs: [], flags: {},
@@ -383,6 +381,7 @@ const VM = (function () {
     getState: () => state,
     getData: () => DATA,
     goto: (roomId) => { if (DATA.rooms[roomId]) OPS.goto(makeCtx({}), { room: roomId }); },
+    
     buy: (itemId, price) => {
       if (state.money >= price) {
         state.money -= price;
@@ -395,6 +394,7 @@ const VM = (function () {
         return false;
       }
     },
+    
     serve: (npcId, itemId) => {
       const npcIndex = state.npcs.findIndex(n => n.id === npcId);
       if (npcIndex < 0) return;
@@ -417,6 +417,49 @@ const VM = (function () {
         out(`${npc.name}看了一眼【${item.name}】，眉头一皱：“我没点这个啊！”`, "sys");
         npc.patience = Math.max(0, npc.patience - 5);
       }
+    },
+
+    // ==================== 新增：多存档系统 ====================
+    getSaves: () => {
+      const s = localStorage.getItem("kitchen_saves");
+      return s ? JSON.parse(s) : [];
+    },
+    save: (name) => {
+      try {
+        const saves = VM.getSaves();
+        const newSave = {
+          id: Date.now().toString(),
+          name: name || "无名存档",
+          date: new Date().toLocaleString(),
+          state: JSON.parse(JSON.stringify(state)) // 深拷贝当前状态
+        };
+        saves.push(newSave);
+        localStorage.setItem("kitchen_saves", JSON.stringify(saves));
+        out(`💾 存档【${newSave.name}】保存成功！`, "sys");
+        return true;
+      } catch (e) {
+        out("❌ 保存失败：" + e.message, "sys");
+        return false;
+      }
+    },
+    load: (id) => {
+      const saves = VM.getSaves();
+      const save = saves.find(s => s.id === id);
+      if (!save) {
+        out("❌ 找不到该存档。", "sys");
+        return false;
+      }
+      state = save.state; // 恢复状态
+      out(`📂 成功读取存档【${save.name}】！`, "sys");
+      const room = DATA.rooms[state.room];
+      if (room) out(`—— ${room.name} ——\n${room.desc}`, "sys");
+      return true;
+    },
+    deleteSave: (id) => {
+      let saves = VM.getSaves();
+      saves = saves.filter(s => s.id !== id);
+      localStorage.setItem("kitchen_saves", JSON.stringify(saves));
+      return true;
     }
   };
 })();
