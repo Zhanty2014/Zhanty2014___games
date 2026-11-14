@@ -65,5 +65,54 @@
     },
     "result": "cold_water",
     "price": 1
+  },
+  "mashed_potato": {
+    "name": "土豆泥",
+    "ingredients": {
+      "potato": "washed"
+    },
+    "result": "mashed_potato",
+    "price": 3
+  },
+    "rice_dish": {
+    "name": "白米饭",
+    "ingredients": {
+      "rice": "boiled"
+    },
+    "result": "rice_dish",
+    "price": 3
+  },
+  "rice_dish2": {
+    "name": "炒米饭",
+    "ingredients": {
+      "rice": "cooked"
+    },
+    "result": "rice_dish2",
+    "price": 3
+  },
+  "mashed_potato_raw": {
+    "name": "土豆泥?(土豆带泥)",
+    "ingredients": {
+      "potato": "raw"
+    },
+    "result": "mashed_potato_raw",
+    "price": 0.01
+  },
+  "air_water": {
+    "name": "不烧心的水蒸气",
+    "ingredients": {
+      "water": "cooked"
+    },
+    "result": "air_water",
+    "price": 0.01
+  },
+  "tomato_egg_rice":{
+    "name":"番茄炒蛋盖饭",
+    "ingredients":{
+      "tomato_egg":"dish",
+      "rice_dish":"dish"
+    },
+    "result":"tomato_egg_rice",
+    "price":18
   }
 }

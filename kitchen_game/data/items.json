@@ -92,10 +92,56 @@
       "cooked":{"desc":"炒熟的水蒸气"}
     }
   },
-    "cold_water": {
+  "cold_water": {
     "name": "凉白开",
     "states": {
       "dish": { "desc": "凉透了的白开水" }
+    }
+  },
+  "mashed_potato":{
+    "name":"土豆泥",
+    "states":{
+      "dish":{"desc":"捣好的土豆泥"}
+    }
+  },
+  "rice":{
+    "name":"大米",
+    "states":{
+      "raw":{"desc":"没洗的米"},
+      "washed":{"desc":"洗净的生大米"},
+      "chopped":{"desc":"挑好的生大米"},
+      "cooked":{"desc":"炒熟的大米"},
+      "boiled":{"desc":"煮熟的白米饭"}
+    }
+  },
+  "rice_dish": {
+    "name": "白米饭",
+    "states": {
+      "dish": { "desc": "热气腾腾的白米饭" }
+    }
+  },
+  "rice_dish2": {
+    "name": "炒米饭",
+    "states": {
+      "dish": { "desc": "热气腾腾的炒米饭" }
+    }
+  },
+  "mashed_potato_raw":{
+    "name":"土豆带泥?",
+    "states":{
+      "dish":{"desc":"土豆带泥（这玩意能吃？）"}
+    }
+  },
+  "air_water":{
+    "name":"不烧心的水蒸气",
+    "states":{
+      "dish":{"desc":"不烧心的水蒸气（来来来你告诉我怎么吃）"}
+    }
+  },
+  "tomato_egg_rice":{
+    "name":"番茄盖饭",
+    "states":{
+      "dish":{"desc":"美味的番茄盖饭"}
     }
   }
 }

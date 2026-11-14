@@ -90,7 +90,9 @@
         "else": [ { "op": "say", "text": "这不是成品菜，不能出餐。" } ] }
     ]
   },
-  "来客": { "program": [ { "op": "spawn", "npc": "customer_1" } ] },
+  "来客": { 
+    "program": [ { "op": "spawn" } ] 
+  },
   "接水": {
     "room": "storage",
     "isSceneAction": true,
@@ -115,7 +117,17 @@
           ] }
         ],
         "else": [
-          { "op": "say", "text": "只有生水需要用锅煮，其他东西别乱煮。" }
+          { "op": "if", "cond": { "target.id": "rice", "target.state": "washed" },
+            "then": [
+              { "op": "say", "text": "你把洗净的大米倒进锅里，加水开始煮……" },
+              { "op": "wait", "sec": 5, "then": [
+                { "op": "say", "text": "叮！米饭煮熟了，香气四溢。" },
+                { "op": "set", "path": "target.state", "value": "boiled" }
+              ] }
+            ],
+            "else": [
+              { "op": "say", "text": "这个现在没法煮哦（生水要先接水，大米要先洗）。" }
+            ] }
         ] }
     ]
   }

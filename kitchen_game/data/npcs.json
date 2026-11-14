@@ -1,13 +1,56 @@
 {
   "customer_1": {
-    "name": "王大爷",
+    "name": "暴躁王大爷",
+    "patience": 40,
+    "onSpawn": [ { "op": "say", "text": "{self.name}一脚踹开门：「快点！饿死老子了，来份{self.orderName}！」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}拍桌子怒吼：「做个饭这么慢，倒闭吧你！」然后气呼呼地走了。" } ]
+  },
+  "customer_2": {
+    "name": "挑剔李阿姨",
+    "patience": 40,
+    "onSpawn": [ { "op": "say", "text": "{self.name}走进来，拿着放大镜看了看菜单：「给我做份{self.orderName}，做不好我可不付钱啊。」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}摇了摇头：「这效率，还不如我自己回家做。」转身离开了。" } ]
+  },
+  "customer_3": {
+    "name": "干饭小学生",
+    "patience": 40,
+    "onSpawn": [ { "op": "say", "text": "{self.name}背着书包冲进来：「老板老板！我要一份{self.orderName}！我快饿扁啦！」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}快哭了：「呜呜呜，上学要迟到了，我不吃了！」" } ]
+  },
+  "customer_4": {
+    "name": "猛男健身教练",
+    "patience": 60,
+    "onSpawn": [ { "op": "say", "text": "{self.name}秀了秀肌肉：「给我来份{self.orderName}，我要补充优质碳水！」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}叹了口气：「算了，我回去喝蛋白粉了。」" } ]
+  },
+  "customer_5": {
+    "name": "神秘黑衣男（嘉豪）",
     "patience": 45,
-    "onSpawn": [
-      { "op": "say", "text": "{self.name}推门进来：「服务员，来份{self.orderName}！」" }
-    ],
-    "onTimeout": [
-      { "op": "say", "text": "{self.name}等急了，嘟囔着「饿死老子了」，摔门走了。" },
-      { "op": "add", "path": "rating", "value": -1 }
-    ]
+    "onSpawn": [ { "op": "say", "text": "{self.name}压低帽檐，用极低的声音说：「{self.orderName}，别多问。」" } ],
+    "onTimeout": [ { "op": "say", "text": "你只是转了个身，{self.name}就凭空消失了……" } ]
+  },
+  "customer_6": {
+    "name": "本地美食家",
+    "patience": 45,
+    "onSpawn": [ { "op": "say", "text": "{self.name}端着架子坐下：「让我品鉴一下你们的{self.orderName}，希望能给我惊喜。」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}冷笑一声：「连美食家的耐心都等不了，这店不行。」" } ]
+  },
+  "customer_7": {
+    "name": "黄袍外卖小哥",
+    "patience": 55,
+    "onSpawn": [ { "op": "say", "text": "{self.name}满头大汗：「老板！18号订单的{self.orderName}好了没？我要超时了！」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}绝望地看了一眼手机：「完了完了，超时扣两百，我白干了……」" } ]
+  },
+  "customer_8": {
+    "name": "傲娇萌妹子",
+    "patience": 45,
+    "onSpawn": [ { "op": "say", "text": "{self.name}嘟着嘴：「哼，人家才不是特意来吃你家的{self.orderName}呢，只是刚好路过！」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}气鼓鼓地站起来：「笨蛋！我再也不理你了！」跑掉了。" } ]
+  },
+  "customer_9": {
+    "name": "修仙程序员",
+    "patience": 50,
+    "onSpawn": [ { "op": "say", "text": "{self.name}顶着黑眼圈：「老板，来份{self.orderName}……只要碳水，不要 bug……」" } ],
+    "onTimeout": [ { "op": "say", "text": "{self.name}趴在桌子上睡着了，被同伴抬走了。" } ]
   }
 }
