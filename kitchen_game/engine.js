@@ -42,7 +42,7 @@ const VM = (function () {
           return stateDef.desc || def.name || i.id;
         }).join("、");
       }
-      if (expr === "money") return String(state.money);
+      if (expr === "money") return String(Number(state.money.toFixed(2)));
       if (expr === "room.name") return DATA.rooms[state.room]?.name || state.room;
       if (expr === "room.desc") return DATA.rooms[state.room]?.desc || "";
       const v = getPath(ctx, expr) ?? getPath(state, expr);
@@ -157,22 +157,32 @@ const VM = (function () {
       }
     },
 
-    spawn(ctx, ins) {
-      const def = DATA.npcs[ins.npc];
+        spawn(ctx, ins) {
+      let npcId = ins.npc;
+      
+      // 如果没有指定具体 NPC，或者指定了 "random"，就随机抽一个
+      if (!npcId || npcId === "random") {
+        const keys = Object.keys(DATA.npcs);
+        npcId = keys[Math.floor(Math.random() * keys.length)];
+      }
+
+      const def = DATA.npcs[npcId];
       if (!def) return;
       
+      // 检查是否有已解锁的菜谱
       if (state.unlockedRecipes.length === 0) {
-        out(`${def.name || ins.npc}推门进来，看了看空荡荡的菜单：“不是咋没菜，走了走了。”`, "sys");
+        out(`${def.name || npcId}推门进来，看了看空荡荡的菜单：“不是咋没菜，走了走了。”`, "sys");
         return;
       }
 
+      // 随机取一个解锁的菜谱
       const randomIndex = Math.floor(Math.random() * state.unlockedRecipes.length);
       const randomRecipeId = state.unlockedRecipes[randomIndex];
       const recipeDef = DATA.recipes[randomRecipeId];
       
       const npc = { 
-        id: ins.npc, 
-        name: def.name || ins.npc, 
+        id: npcId, 
+        name: def.name || npcId, 
         patience: def.patience ?? 60,
         order: randomRecipeId,
         orderName: recipeDef ? recipeDef.name : randomRecipeId
@@ -407,7 +417,7 @@ const VM = (function () {
       }
 
       if (item.id === npc.order) {
-        const price = DATA.recipes[npc.order]?.price || 30;
+        const price = DATA.recipes[npc.order]?.price ?? 30;
         state.money += price;
         out(`你把【${item.name}】端给了 ${npc.name}。`, "sys");
         out(`${npc.name}大快朵颐，非常满意！+${price} 元`, "sys");
