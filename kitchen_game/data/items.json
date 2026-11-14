@@ -1,6 +1,6 @@
 {
   "knife": { "name": "菜刀" },
-  "pan": { "name": "炒锅" },
+  "pan": { "name": "铁锅" },
   
   "tomato": {
     "name": "番茄",
@@ -26,7 +26,9 @@
     "name": "茶叶",
     "states": {
       "raw":     { "desc": "干巴巴的茶叶" },
-      "washed":  { "desc": "洗净的茶叶" }
+      "washed":  { "desc": "洗净的茶叶" },
+      "chopped": { "desc": "切好的茶叶?"},
+      "cooked":  { "desc": "炒好的茶叶？！"}
     }
   },
   "tea_egg": {
@@ -51,6 +53,49 @@
     "name":"凉拌番茄",
     "states":{
       "dish":{"desc":"加了白糖的凉拌番茄"}
+    }
+  },
+  "poached_egg":{
+    "name":"荷包蛋",
+    "states":{
+      "dish":{"desc":"香喷喷的荷包蛋"}
+    }
+  },
+  "potato":{
+    "name":"土豆",
+    "states":{
+      "raw":{"desc":"带泥的土豆"},
+      "washed":{"desc":"洗净的土豆"},
+      "chopped":{"desc":"切好的土豆片"},
+      "cooked":{"desc":"炒好的土豆片"}
+    }
+  },
+  "stir_fried_potato_slices":{
+    "name":"炒土豆片",
+    "states":{
+      "dish":{"desc":"热乎乎的炒土豆片"}
+    }
+  },
+  "brewed_tea":{
+    "name":"泡好的茶",
+    "states":{
+      "dish":{"desc":"热腾腾的茶"}
+    }
+  },
+    "water": {
+    "name": "水",
+    "states": {
+      "raw":    { "desc": "一瓢生水" },
+      "boiled": { "desc": "一壶沸腾的热水" },
+      "washed": { "desc": "洗过的水（变得更水了？）" },
+      "chopped":{"desc":"切开的水？（恢复了原样）"},
+      "cooked":{"desc":"炒熟的水蒸气"}
+    }
+  },
+    "cold_water": {
+    "name": "凉白开",
+    "states": {
+      "dish": { "desc": "凉透了的白开水" }
     }
   }
 }

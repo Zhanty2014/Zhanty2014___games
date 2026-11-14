@@ -1,7 +1,7 @@
 {
   "customer_1": {
     "name": "王大爷",
-    "patience": 30,
+    "patience": 45,
     "onSpawn": [
       { "op": "say", "text": "{self.name}推门进来：「服务员，来份{self.orderName}！」" }
     ],

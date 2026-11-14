@@ -90,5 +90,33 @@
         "else": [ { "op": "say", "text": "这不是成品菜，不能出餐。" } ] }
     ]
   },
-  "来客": { "program": [ { "op": "spawn", "npc": "customer_1" } ] }
+  "来客": { "program": [ { "op": "spawn", "npc": "customer_1" } ] },
+  "接水": {
+    "room": "storage",
+    "isSceneAction": true,
+    "program": [
+      { "op": "give", "item": "water" },
+      { "op": "say", "text": "你在储物间的水龙头下接了一瓢生水，放进了背包。" }
+    ]
+  },
+  
+  "煮": {
+    "room": "kitchen",
+    "isSceneAction": true,
+    "requireTools": ["pan"],
+    "needTarget": true,
+    "program": [
+      { "op": "if", "cond": { "target.id": "water", "target.state": "raw" },
+        "then": [
+          { "op": "say", "text": "你把生水倒进锅里，点火烧水……" },
+          { "op": "wait", "sec": 3, "then": [
+            { "op": "say", "text": "咕噜咕噜……水烧开了！" },
+            { "op": "set", "path": "target.state", "value": "boiled" }
+          ] }
+        ],
+        "else": [
+          { "op": "say", "text": "只有生水需要用锅煮，其他东西别乱煮。" }
+        ] }
+    ]
+  }
 }

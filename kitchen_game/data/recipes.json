@@ -25,12 +25,45 @@
     "result": "tea_egg",
     "price": 5
   },
+  "poached_egg": {
+    "name": "荷包蛋",
+    "ingredients": {
+      "egg": "cooked"
+    },
+    "result": "poached_egg",
+    "price": 4
+  },
   "cold_tomato_salad": {
     "name": "凉拌番茄",
-    "ingredients": {
-      "tomato": "chopped"
+    "ingredients": { 
+      "tomato": "chopped" 
     },
     "result": "cold_tomato_salad",
     "price": 6
+  },
+  "stir_fried_potato_slices":{
+    "name":"炒土豆片",
+    "ingredients":{
+      "potato":"cooked"
+    },
+    "result":"stir_fried_potato_slices",
+    "price":8
+  },
+  "brewed_tea":{
+    "name":"泡好的茶",
+    "ingredients":{
+      "tea":"washed",
+      "water":"boiled"
+    },
+    "result":"brewed_tea",
+    "price":2
+  },
+  "cold_water": {
+    "name": "凉白开",
+    "ingredients": {
+      "water": "boiled"
+    },
+    "result": "cold_water",
+    "price": 1
   }
 }
