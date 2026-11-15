@@ -5,143 +5,175 @@
   "tomato": {
     "name": "番茄",
     "states": {
-      "raw":     { "desc": "带泥的番茄" },
-      "washed":  { "desc": "洗净的番茄" },
-      "chopped": { "desc": "切好的番茄" },
-      "cooked":  { "desc": "炒熟的番茄" },
-      "burnt":   { "desc": "焦黑的番茄" }
+      "raw": { 
+        "desc": "带泥的番茄", 
+        "actions": { 
+          "洗": { "next": "washed", "success": "水龙头哗啦啦，你把番茄洗干净了。" } 
+        } 
+      },
+      "washed": { 
+        "desc": "洗净的番茄", 
+        "actions": { 
+          "切": { "next": "chopped", "requireTools": ["knife"], "success": "咔嚓——番茄切好了。", "fail": "没有菜刀切不了番茄。" } 
+        } 
+      },
+      "chopped": { 
+        "desc": "切好的番茄", 
+        "actions": { 
+          "炒": { "next": "cooked", "requireTools": ["pan"], "delay": 3000, "pending": "你把番茄倒进锅里，油花滋啦响……", "success": "叮！番茄炒熟了，香气扑鼻。", "fail": "没有铁锅炒不了菜。" } 
+        } 
+      },
+      "cooked": { "desc": "炒熟的番茄" },
+      "burnt": { "desc": "焦黑的番茄" }
     }
   },
+  
   "egg": {
     "name": "鸡蛋",
     "states": {
-      "raw":     { "desc": "带泥的鸡蛋" },
-      "washed":  { "desc": "洗净的鸡蛋" },
-      "chopped": { "desc": "打散的蛋液" },
-      "cooked":  { "desc": "炒熟的鸡蛋" },
-      "burnt":   { "desc": "焦黑的鸡蛋" }
+      "raw": { 
+        "desc": "带泥的鸡蛋", 
+        "actions": { 
+          "洗": { "next": "washed", "success": "水龙头哗啦啦，你把鸡蛋洗干净了。" } 
+        } 
+      },
+      "washed": { 
+        "desc": "洗净的鸡蛋", 
+        "actions": { 
+          "切": { "next": "chopped", "requireTools": ["knife"], "success": "咔嚓——鸡蛋切好了。", "fail": "没有菜刀切不了鸡蛋。" } 
+        } 
+      },
+      "chopped": { 
+        "desc": "打散的蛋液", 
+        "actions": { 
+          "炒": { "next": "cooked", "requireTools": ["pan"], "delay": 3000, "pending": "你把蛋液倒进锅里，油花滋啦响……", "success": "叮！鸡蛋炒熟了，香气扑鼻。", "fail": "没有铁锅炒不了菜。" } 
+        } 
+      },
+      "cooked": { "desc": "炒熟的鸡蛋" },
+      "burnt": { "desc": "焦黑的鸡蛋" }
     }
   },
-    "tea": {
+  
+  "tea": {
     "name": "茶叶",
     "states": {
-      "raw":     { "desc": "干巴巴的茶叶" },
-      "washed":  { "desc": "洗净的茶叶" },
-      "chopped": { "desc": "切好的茶叶?"},
-      "cooked":  { "desc": "炒好的茶叶？！"}
+      "raw": { 
+        "desc": "干巴巴的茶叶", 
+        "actions": { 
+          "洗": { "next": "washed", "success": "水龙头哗啦啦，你把茶叶洗干净了。" } 
+        } 
+      },
+      "washed": { 
+        "desc": "洗净的茶叶", 
+        "actions": { 
+          "切": { "next": "chopped", "requireTools": ["knife"], "success": "咔嚓——茶叶切好了。", "fail": "没有菜刀切不了茶叶。" },
+          "炒": { "next": "cooked", "requireTools": ["pan"], "delay": 3000, "pending": "你把茶叶倒进锅里，油花滋啦响……", "success": "叮！茶叶炒熟了，香气扑鼻。", "fail": "没有铁锅炒不了菜。" } 
+        } 
+      },
+      "chopped": { "desc": "切好的茶叶?" },
+      "cooked": { "desc": "炒好的茶叶？！" }
     }
   },
-  "tea_egg": {
-    "name": "茶叶蛋",
+  
+  "potato": {
+    "name": "土豆",
     "states": {
-      "dish": { "desc": "香气扑鼻的茶叶蛋" }
+      "raw": { 
+        "desc": "带泥的土豆", 
+        "actions": { 
+          "洗": { "next": "washed", "success": "水龙头哗啦啦，你把土豆洗干净了。" } 
+        } 
+      },
+      "washed": { 
+        "desc": "洗净的土豆", 
+        "actions": { 
+          "切": { "next": "chopped", "requireTools": ["knife"], "success": "咔嚓——土豆切好了。", "fail": "没有菜刀切不了土豆。" },
+          "煮": { "next": "boiled", "requireTools": ["pan"], "delay": 3000, "pending": "你把土豆放进锅里，加水慢煮……", "success": "咕噜咕噜……土豆煮好了！", "fail": "没有铁锅煮不了土豆。" }
+          
+        } 
+      },
+      "chopped": { 
+        "desc": "切好的土豆片", 
+        "actions": { 
+          "炒": { "next": "cooked", "requireTools": ["pan"], "delay": 3000, "pending": "你把土豆片倒进锅里，油花滋啦响……", "success": "叮！土豆片炒熟了，香气扑鼻。", "fail": "没有铁锅炒不了菜。" } ,
+          "切": { "next": "chopped1", "requireTools": ["knife"], "success": "咔嚓——土豆片切好了。", "fail": "没有菜刀切不了土豆。" }
+        } 
+      },
+      "chopped1":{
+        "desc":"切好的土豆丝",
+        "actions":{
+          "炒":{"next":"cooked1","requireTools":["pan"],"delay":3000,"pending":"你把土豆丝倒进锅里，油花滋啦响","success":"叮！土豆丝炒熟了，香气扑鼻。","fail":"没有铁锅炒不了菜。"}
+        }
+      },
+      "cooked": { "desc": "炒好的土豆片" },
+      "cooked1": { "desc": "炒好的土豆丝" },
+      "boiled": { "desc": "煮熟的土豆" }
     }
   },
-  "tomato_egg": {
-    "name": "番茄炒蛋",
+  
+  "rice": {
+    "name": "大米",
     "states": {
-      "dish": { "desc": "热腾腾的番茄炒蛋" }
+      "raw": { 
+        "desc": "没洗的米", 
+        "actions": { 
+          "洗": { "next": "washed", "success": "水龙头哗啦啦，你把大米洗干净了。" } 
+        } 
+      },
+      "washed": { 
+        "desc": "洗净的生大米", 
+        "actions": { 
+          "切": { "next": "chopped", "requireTools": ["knife"], "success": "咔嚓——大米切好了。", "fail": "没有菜刀切不了大米。" },
+          "煮": { "next": "boiled", "requireTools": ["pan"], "delay": 5000, "pending": "你把洗净的大米倒进锅里，加水开始煮……", "success": "叮！米饭煮熟了，香气四溢。", "fail": "没有铁锅煮不了米饭。" }
+        } 
+      },
+      "chopped": { 
+        "desc": "挑好的生大米", 
+        "actions": { 
+          "炒": { "next": "cooked", "requireTools": ["pan"], "delay": 3000, "pending": "你把大米倒进锅里，油花滋啦响……", "success": "叮！大米炒熟了。", "fail": "没有铁锅炒不了菜。" } 
+        } 
+      },
+      "cooked": { "desc": "炒熟的大米" },
+      "boiled": { "desc": "煮熟的白米饭" }
     }
   },
-  "water_egg": {
-    "name": "水煮蛋",
-    "states":{
-      "dish":{"desc":"剥好壳的水煮蛋"}
-    }
-  },
-  "cold_tomato_salad":{
-    "name":"凉拌番茄",
-    "states":{
-      "dish":{"desc":"加了白糖的凉拌番茄"}
-    }
-  },
-  "poached_egg":{
-    "name":"荷包蛋",
-    "states":{
-      "dish":{"desc":"香喷喷的荷包蛋"}
-    }
-  },
-  "potato":{
-    "name":"土豆",
-    "states":{
-      "raw":{"desc":"带泥的土豆"},
-      "washed":{"desc":"洗净的土豆"},
-      "chopped":{"desc":"切好的土豆片"},
-      "cooked":{"desc":"炒好的土豆片"}
-    }
-  },
-  "stir_fried_potato_slices":{
-    "name":"炒土豆片",
-    "states":{
-      "dish":{"desc":"热乎乎的炒土豆片"}
-    }
-  },
-  "brewed_tea":{
-    "name":"泡好的茶",
-    "states":{
-      "dish":{"desc":"热腾腾的茶"}
-    }
-  },
-    "water": {
+  
+  "water": {
     "name": "水",
     "states": {
-      "raw":    { "desc": "一瓢生水" },
-      "boiled": { "desc": "一壶沸腾的热水" },
-      "washed": { "desc": "洗过的水（变得更水了？）" },
-      "chopped":{"desc":"切开的水？（恢复了原样）"},
-      "cooked":{"desc":"炒熟的水蒸气"}
+      "raw": { 
+        "desc": "一瓢生水", 
+        "actions": { 
+          "洗": { "next": "washed", "success": "水龙头哗啦啦，你把水洗干净了。" },
+          "煮": { "next": "boiled", "requireTools": ["pan"], "delay": 3000, "pending": "你把生水倒进锅里，点火烧水……", "success": "咕噜咕噜……水烧开了！", "fail": "没有铁锅烧不了水。" }
+        } 
+      },
+      "washed": { 
+        "desc": "洗过的水（变得更水了？）", 
+        "actions": { 
+          "切": { "next": "chopped", "requireTools": ["knife"], "success": "咔嚓——水切好了。", "fail": "没有菜刀切不了水。" },
+          "炒": { "next": "cooked", "requireTools": ["pan"], "delay": 3000, "pending": "你把水倒进锅里，油花滋啦响……", "success": "叮！水炒熟了，香气扑鼻。", "fail": "没有铁锅炒不了菜。" }
+        } 
+      },
+      "chopped": { "desc": "切开的水？（恢复了原样）" },
+      "cooked": { "desc": "炒熟的水蒸气" },
+      "boiled": { "desc": "一壶沸腾的热水" }
     }
   },
-  "cold_water": {
-    "name": "凉白开",
-    "states": {
-      "dish": { "desc": "凉透了的白开水" }
-    }
-  },
-  "mashed_potato":{
-    "name":"土豆泥",
-    "states":{
-      "dish":{"desc":"捣好的土豆泥"}
-    }
-  },
-  "rice":{
-    "name":"大米",
-    "states":{
-      "raw":{"desc":"没洗的米"},
-      "washed":{"desc":"洗净的生大米"},
-      "chopped":{"desc":"挑好的生大米"},
-      "cooked":{"desc":"炒熟的大米"},
-      "boiled":{"desc":"煮熟的白米饭"}
-    }
-  },
-  "rice_dish": {
-    "name": "白米饭",
-    "states": {
-      "dish": { "desc": "热气腾腾的白米饭" }
-    }
-  },
-  "rice_dish2": {
-    "name": "炒米饭",
-    "states": {
-      "dish": { "desc": "热气腾腾的炒米饭" }
-    }
-  },
-  "mashed_potato_raw":{
-    "name":"土豆带泥?",
-    "states":{
-      "dish":{"desc":"土豆带泥（这玩意能吃？）"}
-    }
-  },
-  "air_water":{
-    "name":"不烧心的水蒸气",
-    "states":{
-      "dish":{"desc":"不烧心的水蒸气（来来来你告诉我怎么吃）"}
-    }
-  },
-  "tomato_egg_rice":{
-    "name":"番茄盖饭",
-    "states":{
-      "dish":{"desc":"美味的番茄盖饭"}
-    }
-  }
+
+  "tea_egg": { "name": "茶叶蛋", "states": { "dish": { "desc": "香气扑鼻的茶叶蛋" } } },
+  "tomato_egg": { "name": "番茄炒蛋", "states": { "dish": { "desc": "热腾腾的番茄炒蛋" } } },
+  "water_egg": { "name": "水煮蛋", "states": { "dish": { "desc": "剥好壳的水煮蛋" } } },
+  "cold_tomato_salad": { "name": "凉拌番茄", "states": { "dish": { "desc": "加了白糖的凉拌番茄" } } },
+  "poached_egg": { "name": "荷包蛋", "states": { "dish": { "desc": "香喷喷的荷包蛋" } } },
+  "stir_fried_potato_slices": { "name": "炒土豆片", "states": { "dish": { "desc": "热乎乎的炒土豆片" } } },
+  "brewed_tea": { "name": "泡好的茶", "states": { "dish": { "desc": "热腾腾的茶" } } },
+  "cold_water": { "name": "凉白开", "states": { "dish": { "desc": "凉透了的白开水" } } },
+  "mashed_potato": { "name": "土豆泥", "states": { "dish": { "desc": "捣好的土豆泥" } } },
+  "rice_dish": { "name": "白米饭", "states": { "dish": { "desc": "热气腾腾的白米饭" } } },
+  "rice_dish2": { "name": "炒米饭", "states": { "dish": { "desc": "热气腾腾的炒米饭" } } },
+  "mashed_potato_raw": { "name": "土豆带泥?", "states": { "dish": { "desc": "土豆带泥（这玩意能吃？）" } } },
+  "air_water": { "name": "不烧心的水蒸气", "states": { "dish": { "desc": "不烧心的水蒸气（来来来你告诉我怎么吃）" } } },
+  "tomato_egg_rice": { "name": "番茄盖饭", "states": { "dish": { "desc": "美味的番茄盖饭" } } },
+  "stir_fried_shredded_potatoes": { "name": "炒土豆丝", "states": { "dish": { "desc": "美味的脆脆的炒土豆丝" } } }
 }

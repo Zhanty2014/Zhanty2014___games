@@ -2,8 +2,11 @@
   "帮助": {
     "program": [
       { "op": "say", "text": "========== 命令表 ==========" },
-      { "op": "say", "text": "场景动作：研发 / 洗 / 切 / 炒 / 装盘" },
-      { "op": "say", "text": "提示：在早市点击商品购买，点击背包食材放上台面！" }
+      { "op": "say", "text": "提示：选中台面物品后，下方会自动出现可用动作（洗/切/炒/煮）！" },
+      { "op": "say", "text": "早市：买 菜刀 / 铁锅 / 土豆 / 大米 / 番茄 / 鸡蛋 / 茶叶" },
+      { "op": "say", "text": "储物间：接水" },
+      { "op": "say", "text": "厨房：研发 / 装盘" },
+      { "op": "say", "text": "餐厅：来客 / 出餐" }
     ]
   },
   "看": { "program": [ { "op": "say", "text": "{room.desc}" } ] },
@@ -14,121 +17,35 @@
     "needTarget": true,
     "program": [ { "op": "place" } ]
   },
-    "收起": {
+  "收起": {
     "needTarget": true,
     "program": [ { "op": "pick" } ]
   },
 
   "研发": {
     "room": "kitchen",
-    "isSceneAction": true,
     "program": [ { "op": "research" } ]
-  },
-  "洗": {
-    "room": "kitchen",
-    "isSceneAction": true,
-    "needTarget": true,
-    "program": [
-      { "op": "if", "cond": { "target.state": "raw" },
-        "then": [
-          { "op": "say", "text": "水龙头哗啦啦，你把{target.name}洗干净了。" },
-          { "op": "set", "path": "target.state", "value": "washed" }
-        ],
-        "else": [ { "op": "say", "text": "{target.name}现在不需要洗。" } ] }
-    ]
-  },
-  "切": {
-    "room": "kitchen",
-    "isSceneAction": true,
-    "requireTools": ["knife"],
-    "needTarget": true,
-    "program": [
-      { "op": "if", "cond": { "target.state": "raw" },
-        "then": [ { "op": "say", "text": "{target.name}还带着泥，先去洗洗。" } ],
-        "else": [
-          { "op": "if", "cond": { "target.state": "washed" },
-            "then": [
-              { "op": "say", "text": "咔嚓——{target.name}切好了。" },
-              { "op": "set", "path": "target.state", "value": "chopped" }
-            ],
-            "else": [ { "op": "say", "text": "{target.name}现在不需要切。" } ] }
-        ] }
-    ]
-  },
-  "炒": {
-    "room": "kitchen",
-    "isSceneAction": true,
-    "requireTools": ["pan"],
-    "needTarget": true,
-    "program": [
-      { "op": "if", "cond": { "target.state": "chopped" },
-        "then": [
-          { "op": "say", "text": "你把{target.name}倒进锅里，油花滋啦响……" },
-          { "op": "wait", "sec": 3, "then": [
-            { "op": "say", "text": "叮！{target.name}炒熟了，香气扑鼻。" },
-            { "op": "set", "path": "target.state", "value": "cooked" }
-          ] }
-        ],
-        "else": [ { "op": "say", "text": "{target.name}还没切好，不能下锅。" } ] }
-    ]
   },
   "装盘": {
     "room": "kitchen",
-    "isSceneAction": true,
     "program": [ { "op": "craft" } ]
   },
+  
   "出餐": {
     "room": "dining",
     "needTarget": true,
-    "program": [
-      { "op": "if", "cond": { "target.state": "dish" },
-        "then": [
-          { "op": "say", "text": "你把{target.name}端给了顾客。" },
-          { "op": "add", "path": "money", "value": 30 },
-          { "op": "remove", "from": "table" }
-        ],
-        "else": [ { "op": "say", "text": "这不是成品菜，不能出餐。" } ] }
-    ]
+    "program": [ { "op": "say", "text": "这个出餐逻辑由 UI 特殊接管。" } ]
   },
+  
   "来客": { 
-    "program": [ { "op": "spawn" } ] 
+    "program": [ { "op": "spawn", "npc": "random" } ] 
   },
+  
   "接水": {
     "room": "storage",
-    "isSceneAction": true,
     "program": [
       { "op": "give", "item": "water" },
       { "op": "say", "text": "你在储物间的水龙头下接了一瓢生水，放进了背包。" }
-    ]
-  },
-  
-  "煮": {
-    "room": "kitchen",
-    "isSceneAction": true,
-    "requireTools": ["pan"],
-    "needTarget": true,
-    "program": [
-      { "op": "if", "cond": { "target.id": "water", "target.state": "raw" },
-        "then": [
-          { "op": "say", "text": "你把生水倒进锅里，点火烧水……" },
-          { "op": "wait", "sec": 3, "then": [
-            { "op": "say", "text": "咕噜咕噜……水烧开了！" },
-            { "op": "set", "path": "target.state", "value": "boiled" }
-          ] }
-        ],
-        "else": [
-          { "op": "if", "cond": { "target.id": "rice", "target.state": "washed" },
-            "then": [
-              { "op": "say", "text": "你把洗净的大米倒进锅里，加水开始煮……" },
-              { "op": "wait", "sec": 5, "then": [
-                { "op": "say", "text": "叮！米饭煮熟了，香气四溢。" },
-                { "op": "set", "path": "target.state", "value": "boiled" }
-              ] }
-            ],
-            "else": [
-              { "op": "say", "text": "这个现在没法煮哦（生水要先接水，大米要先洗）。" }
-            ] }
-        ] }
     ]
   }
 }

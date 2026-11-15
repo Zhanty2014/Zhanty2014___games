@@ -114,5 +114,13 @@
     },
     "result":"tomato_egg_rice",
     "price":18
+  },
+  "stir_fried_shredded_potatoes": {
+    "name": "炒土豆丝",
+    "ingredients": {
+      "potato": "cooked1"
+    },
+    "result": "stir_fried_shredded_potatoes",
+    "price": 12
   }
 }
