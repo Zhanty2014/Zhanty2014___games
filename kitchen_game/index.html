@@ -6,91 +6,84 @@
 <title>厨房模拟器 · 文字版</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍳</text></svg>">
 <style>
+  /* 默认：浅色模式 */
+  :root {
+    --bg-main: #f6f8fa; --bg-panel: #ffffff; --bg-screen: #ffffff; --text-main: #24292f;
+    --text-muted: #57606a; --border-color: #d0d7de; --btn-bg: #f6f8fa; --btn-hover: #eaeef2;
+    --accent-blue: #0969da; --accent-green: #1a7f37; --accent-purple: #8250df;
+  }
+  /* 深色模式 */
+  [data-theme="dark"] {
+    --bg-main: #0d1117; --bg-panel: #161b22; --bg-screen: #010409; --text-main: #c9d1d9;
+    --text-muted: #8b949e; --border-color: #30363d; --btn-bg: #21262d; --btn-hover: #30363d;
+    --accent-blue: #58a6ff; --accent-green: #3fb950; --accent-purple: #d2a8ff;
+  }
+
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html, body { height: 100%; }
   body {
-    background: #0d1117; color: #c9d1d9;
+    background: var(--bg-main); color: var(--text-main);
     font-family: "Cascadia Code", "Fira Code", Consolas, monospace;
-    font-size: 15px; line-height: 1.6;
-    display: flex; flex-direction: column;
+    font-size: 15px; line-height: 1.6; display: flex; flex-direction: column;
     padding: 12px; gap: 8px; height: 100vh; overflow: hidden;
+    transition: background 0.3s, color 0.3s;
   }
-  #cover {
-    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: #010409; display: flex; flex-direction: column; justify-content: center; align-items: center;
-    z-index: 9999; transition: opacity 0.5s ease;
+
+  #theme-btn {
+    position: absolute; top: 12px; right: 12px; z-index: 1000;
+    font-size: 12px; padding: 6px 10px; border-radius: 20px; cursor: pointer;
+    background: var(--bg-panel); border: 1px solid var(--border-color); color: var(--text-main);
+    transition: all 0.2s;
   }
+  #theme-btn:hover { background: var(--btn-hover); }
+
+  #cover { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: var(--bg-screen); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease; }
   #cover.hidden { opacity: 0; pointer-events: none; }
-  .cover-title { font-size: 48px; font-weight: bold; color: #58a6ff; margin-bottom: 10px; text-shadow: 0 0 10px rgba(88,166,255,0.3); }
-  .cover-subtitle { font-size: 16px; color: #8b949e; margin-bottom: 40px; }
+  .cover-title { font-size: 48px; font-weight: bold; color: var(--accent-blue); margin-bottom: 10px; }
+  .cover-subtitle { font-size: 16px; color: var(--text-muted); margin-bottom: 40px; }
   .cover-emoji { font-size: 80px; margin-bottom: 20px; animation: bounce 2s infinite ease-in-out; }
   @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
-  #start-btn { font: inherit; font-size: 20px; padding: 12px 36px; border-radius: 8px; cursor: pointer; border: 2px solid #3fb950; background: rgba(63,185,80,0.1); color: #3fb950; transition: all 0.2s; }
-  #start-btn:hover { background: #3fb950; color: #fff; box-shadow: 0 0 15px rgba(63,185,80,0.5); }
-  
-  #screen {
-    flex: 1; min-height: 0; overflow-y: auto; white-space: pre-wrap; word-break: break-word;
-    padding: 10px; background: #010409; border: 1px solid #30363d; border-radius: 6px;
-  }
-  .line { margin: 2px 0; }
-  .line.echo { color: #58a6ff; }
-  .line.sys { color: #8b949e; font-style: italic; }
-  
-  .section { flex-shrink: 0; }
-  .section-title { font-size: 12px; color: #8b949e; margin-bottom: 4px; }
-  .bar { display: flex; flex-wrap: wrap; gap: 6px; }
-  
-  #map-bar { display: flex; gap: 10px; }
-  .map-btn {
-    flex: 1; padding: 10px 0; font-size: 15px; font-weight: bold; text-align: center;
-    border: 2px solid #30363d; border-radius: 6px; background: #161b22; color: #8b949e;
-    cursor: pointer; transition: all 0.2s;
-  }
-  .map-btn:hover { border-color: #8b949e; color: #c9d1d9; }
-  .map-btn.active { background: #1f6feb; border-color: #58a6ff; color: #fff; box-shadow: 0 0 10px rgba(88,166,255,0.3); }
-  
-  button.cmd-btn, button.item-btn {
-    font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer;
-    border: 1px solid #30363d; background: #21262d; color: #c9d1d9; transition: all 0.1s;
-  }
-  button.cmd-btn:hover, button.item-btn:hover { background: #30363d; border-color: #8b949e; }
-  button:active { transform: translateY(1px); }
-  .item-btn.selected { background: #1f6feb; border-color: #58a6ff; color: #fff; }
-  .cmd-btn { color: #79c0ff; }
-  .scene-btn { color: #d2a8ff; border-color: #6e40c9; background: #1c1528; }
-  .scene-btn:hover { background: #2c1b3e; border-color: #a371f7; }
-  
-  .inv-tag { padding: 4px 10px; background: #161b22; border: 1px solid #30363d; border-radius: 4px; font-size: 12px; color: #8b949e; }
-  .empty { color: #484f58; font-size: 12px; font-style: italic; }
-  #hint { font-size: 12px; color: #8b949e; flex-shrink: 0; min-height: 1em; }
+  #start-btn { font: inherit; font-size: 20px; padding: 12px 36px; border-radius: 8px; cursor: pointer; border: 2px solid var(--accent-green); background: rgba(63,185,80,0.1); color: var(--accent-green); transition: all 0.2s; }
+  #start-btn:hover { background: var(--accent-green); color: #fff; }
 
-  /* ================= 存读档弹窗样式 ================= */
-  #save-modal {
-    display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center;
-  }
-  .modal-content {
-    background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px;
-    width: 90%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  }
-  .modal-content h3 { color: #c9d1d9; margin-bottom: 15px; font-size: 18px; }
-  #save-name-input {
-    width: 100%; padding: 8px; border-radius: 4px; border: 1px solid #30363d;
-    background: #0d1117; color: #c9d1d9; margin-bottom: 10px; outline: none; font-family: inherit;
-  }
-  #save-name-input:focus { border-color: #58a6ff; }
-  .save-list-item {
-    background: #21262d; padding: 10px; border-radius: 6px; margin-bottom: 8px;
-    display: flex; justify-content: space-between; align-items: center; border: 1px solid #30363d;
-  }
+  #screen { flex: 1; min-height: 0; overflow-y: auto; white-space: pre-wrap; word-break: break-word; padding: 10px; background: var(--bg-screen); border: 1px solid var(--border-color); border-radius: 6px; }
+  .line { margin: 2px 0; }
+  .line.echo { color: var(--accent-blue); }
+  .line.sys { color: var(--text-muted); font-style: italic; }
+  .section { flex-shrink: 0; }
+  .section-title { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+  .bar { display: flex; flex-wrap: wrap; gap: 6px; }
+  #map-bar { display: flex; gap: 10px; }
+  .map-btn { flex: 1; padding: 10px 0; font-size: 15px; font-weight: bold; text-align: center; border: 2px solid var(--border-color); border-radius: 6px; background: var(--bg-panel); color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+  .map-btn:hover { border-color: var(--text-muted); color: var(--text-main); }
+  .map-btn.active { background: #1f6feb; border-color: var(--accent-blue); color: #fff; }
+  
+  button.cmd-btn, button.item-btn { font: inherit; font-size: 13px; padding: 6px 12px; border-radius: 6px; cursor: pointer; border: 1px solid var(--border-color); background: var(--btn-bg); color: var(--text-main); transition: all 0.1s; }
+  button.cmd-btn:hover, button.item-btn:hover { background: var(--btn-hover); border-color: var(--text-muted); }
+  button:active { transform: translateY(1px); }
+  .item-btn.selected { background: #1f6feb; border-color: var(--accent-blue); color: #fff; }
+  .cmd-btn { color: var(--accent-blue); }
+  .scene-btn { color: var(--accent-purple); border-color: var(--accent-purple); background: rgba(130, 80, 223, 0.1); }
+  .scene-btn:hover { background: rgba(130, 80, 223, 0.2); }
+  
+  .empty { color: var(--text-muted); font-size: 12px; font-style: italic; }
+  #hint { font-size: 12px; color: var(--text-muted); flex-shrink: 0; min-height: 1em; }
+
+  /* 存档弹窗 */
+  #save-modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; justify-content: center; align-items: center; }
+  .modal-content { background: var(--bg-panel); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; width: 90%; max-width: 400px; }
+  .modal-content h3 { color: var(--text-main); margin-bottom: 15px; font-size: 18px; }
+  #save-name-input { width: 100%; padding: 8px; border-radius: 4px; border: 1px solid var(--border-color); background: var(--bg-screen); color: var(--text-main); margin-bottom: 10px; outline: none; font-family: inherit; }
+  #save-name-input:focus { border-color: var(--accent-blue); }
+  .save-list-item { background: var(--btn-bg); padding: 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-color); }
   .save-list-info { display: flex; flex-direction: column; }
-  .save-list-name { color: #c9d1d9; font-weight: bold; font-size: 14px; }
-  .save-list-date { color: #8b949e; font-size: 12px; }
+  .save-list-name { color: var(--text-main); font-weight: bold; font-size: 14px; }
+  .save-list-date { color: var(--text-muted); font-size: 12px; }
   .save-list-actions button { margin-left: 5px; padding: 4px 8px; font-size: 12px; }
 </style>
 </head>
 <body>
-  <!-- 游戏封面 -->
+  <button id="theme-btn">🌙 深色模式</button>
   <div id="cover">
     <div class="cover-emoji">🍳</div>
     <div class="cover-title">厨房模拟器——文字mud游戏</div>
@@ -98,76 +91,33 @@
     <button id="start-btn">开始游戏</button>
   </div>
 
-  <!-- 屏幕输出区 -->
   <div id="screen"></div>
 
-  <!-- 地图导航 -->
-  <div class="section">
-    <div class="section-title">地图导航</div>
-    <div id="map-bar"></div>
-  </div>
-
-  <!-- 早市商店 -->
-  <div class="section" id="shop-section" style="display: none;">
-    <div class="section-title">早市商品列表</div>
-    <div id="shop-bar" class="bar"></div>
-  </div>
-
-  <!-- 顾客列表 -->
-  <div class="section" id="npcs-section" style="display: none;">
-    <div class="section-title">餐厅顾客（先点顾客，再点台面菜出餐）</div>
-    <div id="npcs-bar" class="bar"></div>
-  </div>
-
-  <!-- 台面物品 -->
-  <div class="section">
-    <div class="section-title">台面物品（点击选中）</div>
-    <div id="items-bar" class="bar"></div>
-  </div>
-
-  <!-- 背包 -->
-  <div class="section">
-    <div class="section-title">背包（点击食材放上台面）</div>
-    <div id="inventory-bar" class="bar"></div>
-  </div>
-
-  <!-- 场景动作 -->
-  <div class="section">
-    <div class="section-title">场景动作</div>
-    <div id="scene-actions-bar" class="bar"></div>
-  </div>
-
-  <!-- 基础操作 -->
+  <div class="section"><div class="section-title">地图导航</div><div id="map-bar"></div></div>
+  <div class="section" id="shop-section" style="display: none;"><div class="section-title">早市商品列表</div><div id="shop-bar" class="bar"></div></div>
+  <div class="section" id="npcs-section" style="display: none;"><div class="section-title">餐厅顾客（先点顾客，再点台面菜出餐）</div><div id="npcs-bar" class="bar"></div></div>
+  <div class="section"><div class="section-title">台面物品（点击选中）</div><div id="items-bar" class="bar"></div></div>
+  <div class="section"><div class="section-title">背包（点击食材放上台面）</div><div id="inventory-bar" class="bar"></div></div>
+  <div class="section"><div class="section-title">场景动作</div><div id="scene-actions-bar" class="bar"></div></div>
   <div class="section">
     <div class="section-title">基础操作</div>
     <div id="commands-bar" class="bar" style="margin-bottom: 6px;"></div>
-    <!-- 存读档按钮 -->
-    <button id="btn-open-save" class="cmd-btn" style="color: #3fb950; border-color: #3fb950; margin-right: 6px;">💾 保存进度</button>
-    <button id="btn-open-load" class="cmd-btn" style="color: #d2a8ff; border-color: #6e40c9;">📂 读取存档</button>
+    <button id="btn-open-save" class="cmd-btn" style="color: var(--accent-green); border-color: var(--accent-green); margin-right: 6px;">💾 保存进度</button>
+    <button id="btn-open-load" class="cmd-btn" style="color: var(--accent-purple); border-color: var(--accent-purple);">📂 读取存档</button>
   </div>
-
   <div id="hint"></div>
 
-  <!-- ================= 存读档弹窗 ================= -->
   <div id="save-modal">
     <div class="modal-content">
       <h3 id="modal-title">存档</h3>
-      
-      <!-- 保存输入框 -->
       <div id="save-input-area" style="display: none;">
         <input type="text" id="save-name-input" placeholder="输入存档名称...">
-        <button id="btn-do-save" class="cmd-btn" style="width: 100%; background: #238636; color: #fff; border: none; padding: 8px;">确认保存</button>
+        <button id="btn-do-save" class="cmd-btn" style="width: 100%; background: var(--accent-green); color: #fff; border: none; padding: 8px;">确认保存</button>
       </div>
-
-      <!-- 读取列表 -->
-      <div id="save-list-area" style="display: none; max-height: 250px; overflow-y: auto; margin-bottom: 15px;">
-        <!-- 动态生成 -->
-      </div>
-
-      <button id="btn-close-modal" class="cmd-btn" style="width: 100%; border: 1px solid #30363d; padding: 8px;">关闭</button>
+      <div id="save-list-area" style="display: none; max-height: 250px; overflow-y: auto; margin-bottom: 15px;"></div>
+      <button id="btn-close-modal" class="cmd-btn" style="width: 100%; padding: 8px;">关闭</button>
     </div>
   </div>
-
   <script src="engine.js"></script>
   <script src="main.js"></script>
 </body>

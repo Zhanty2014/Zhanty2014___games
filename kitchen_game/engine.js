@@ -1,5 +1,5 @@
 /* ============================================================
- * engine.js —— 虚拟机（解释器）
+ * engine.js —— 虚拟机（解释器）2.0 数据驱动版
  * ============================================================ */
 const VM = (function () {
   let DATA = null;
@@ -157,10 +157,10 @@ const VM = (function () {
       }
     },
 
-        spawn(ctx, ins) {
+    spawn(ctx, ins) {
       let npcId = ins.npc;
       
-      // 如果没有指定具体 NPC，或者指定了 "random"，就随机抽一个
+      // 随机抽 NPC
       if (!npcId || npcId === "random") {
         const keys = Object.keys(DATA.npcs);
         npcId = keys[Math.floor(Math.random() * keys.length)];
@@ -169,13 +169,11 @@ const VM = (function () {
       const def = DATA.npcs[npcId];
       if (!def) return;
       
-      // 检查是否有已解锁的菜谱
       if (state.unlockedRecipes.length === 0) {
         out(`${def.name || npcId}推门进来，看了看空荡荡的菜单：“不是咋没菜，走了走了。”`, "sys");
         return;
       }
 
-      // 随机取一个解锁的菜谱
       const randomIndex = Math.floor(Math.random() * state.unlockedRecipes.length);
       const randomRecipeId = state.unlockedRecipes[randomIndex];
       const recipeDef = DATA.recipes[randomRecipeId];
@@ -417,6 +415,7 @@ const VM = (function () {
       }
 
       if (item.id === npc.order) {
+        // 修复浮点数精度问题，并防止0元被吞
         const price = DATA.recipes[npc.order]?.price ?? 30;
         state.money += price;
         out(`你把【${item.name}】端给了 ${npc.name}。`, "sys");
@@ -429,7 +428,52 @@ const VM = (function () {
       }
     },
 
-    // ==================== 新增：多存档系统 ====================
+    // ==================== 核心升级：动态动作执行器 ====================
+    doAction: (itemId, actionName) => {
+      const item = state.items[itemId];
+      if (!item) return;
+      
+      const itemDef = DATA.items[itemId] || {};
+      const stateDef = (itemDef.states || {})[item.state] || {};
+      const actionConfig = stateDef.actions ? stateDef.actions[actionName] : null;
+
+      if (!actionConfig) {
+        out(`现在的${stateDef.desc || item.name}不能执行「${actionName}」。`, "sys");
+        return;
+      }
+
+      // 检查是否缺少工具
+      if (actionConfig.requireTools) {
+        for (const t of actionConfig.requireTools) {
+          if (!state.inv.some(i => i.id === t)) {
+            out(actionConfig.fail || `缺少必要的工具，无法执行「${actionName}」。`, "sys");
+            return;
+          }
+        }
+      }
+
+      let nextState = typeof actionConfig === "string" ? actionConfig : actionConfig.next;
+      let delay = actionConfig.delay || 0;
+      let pendingMsg = actionConfig.pending || "";
+      let successMsg = actionConfig.success || `你完成了「${actionName}」。`;
+
+      const ctx = makeCtx({ target: item });
+      
+      const applyChange = () => {
+        item.state = nextState;
+        if (state.items[itemId]) state.items[itemId].state = nextState;
+        out(render(successMsg, ctx));
+      };
+
+      if (delay > 0) {
+        if (pendingMsg) out(render(pendingMsg, ctx));
+        setTimeout(applyChange, delay);
+      } else {
+        applyChange();
+      }
+    },
+
+    // ==================== 多存档系统 ====================
     getSaves: () => {
       const s = localStorage.getItem("kitchen_saves");
       return s ? JSON.parse(s) : [];
